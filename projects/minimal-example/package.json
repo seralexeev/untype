@@ -1,0 +1,22 @@
+{
+  "name": "@minimal-example/api",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@untype/rpc": "workspace:*",
+    "@untype/rpc-express": "workspace:*",
+    "express": "4.18.2",
+    "reflect-metadata": "0.1.13",
+    "source-map-support": "0.5.21",
+    "tsyringe": "4.7.0",
+    "zod": "3.21.4"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.17",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}

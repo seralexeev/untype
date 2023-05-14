@@ -1,0 +1,36 @@
+{
+  "name": "@fullstack-example/web",
+  "scripts": {
+    "dev": "vite --force",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@ant-design/icons": "5.0.1",
+    "@fullstack-example/api": "workspace:*",
+    "@react-oauth/google": "0.11.0",
+    "@tanstack/react-query": "4.29.5",
+    "@tanstack/react-query-devtools": "4.29.6",
+    "@types/big.js": "6.1.6",
+    "@types/react": "18.2.6",
+    "@types/react-dom": "18.2.4",
+    "@untype/rpc-react": "workspace:*",
+    "@vitejs/plugin-react": "4.0.0",
+    "antd": "5.4.7",
+    "axios": "1.4.0",
+    "big.js": "6.2.1",
+    "rc-picker": "3.7.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-router": "6.11.1",
+    "react-router-dom": "6.11.1",
+    "rollup-plugin-visualizer": "5.9.0",
+    "type-fest": "3.10.0",
+    "typescript": "5.0.4",
+    "ui-box": "5.4.1",
+    "vite": "4.3.5",
+    "vite-plugin-checker": "0.6.0",
+    "vite-plugin-svgr": "3.2.0",
+    "zod": "3.21.4"
+  }
+}

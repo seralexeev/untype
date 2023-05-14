@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.common.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "react"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/pg" },
+    { "path": "../../packages/rpc" },
+    { "path": "../../packages/migrations" },
+    { "path": "../../packages/orm" },
+    { "path": "../../packages/logger" },
+    { "path": "../../packages/geo" },
+    { "path": "../../packages/worker" },
+    { "path": "../../packages/config" },
+    { "path": "../../packages/rpc-express" }
+  ]
+}

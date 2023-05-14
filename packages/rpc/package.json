@@ -1,0 +1,21 @@
+{
+  "name": "@untype/rpc",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.js"
+    },
+    "./types": {
+      "require": "./dist/types.js"
+    }
+  },
+  "dependencies": {
+    "@untype/core": "workspace:*",
+    "type-fest": "3.10.0",
+    "zod": "3.21.4"
+  }
+}

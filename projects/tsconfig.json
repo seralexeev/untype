@@ -1,0 +1,4 @@
+{
+  "files": [],
+  "references": [{ "path": "fullstack-example" }, { "path": "minimal-example" }]
+}

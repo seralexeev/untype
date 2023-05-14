@@ -1,0 +1,26 @@
+{
+  "name": "@untype/migrations",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.js"
+    },
+    "./cli": {
+      "require": "./dist/cli.js"
+    }
+  },
+  "dependencies": {
+    "@untype/core": "workspace:*",
+    "@untype/pg": "workspace:*",
+    "commander": "9.5.0",
+    "source-map-support": "0.5.21",
+    "zod": "3.21.4"
+  },
+  "devDependencies": {
+    "@types/source-map-support": "0.5.6"
+  }
+}

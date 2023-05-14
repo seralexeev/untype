@@ -1,0 +1,11 @@
+{
+  "name": "@untype/cli",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bin": {
+    "untype": "./dist/cli.js"
+  }
+}

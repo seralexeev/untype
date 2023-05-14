@@ -1,0 +1,18 @@
+{
+  "files": [],
+  "references": [
+    { "path": "cli" },
+    { "path": "config" },
+    { "path": "core" },
+    { "path": "dumper" },
+    { "path": "geo" },
+    { "path": "logger" },
+    { "path": "migrations" },
+    { "path": "orm" },
+    { "path": "pg" },
+    { "path": "rpc" },
+    { "path": "rpc-express" },
+    { "path": "rpc-react" },
+    { "path": "worker" }
+  ]
+}

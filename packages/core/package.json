@@ -1,0 +1,19 @@
+{
+  "name": "@untype/core",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.js"
+    },
+    "./node": {
+      "require": "./dist/node.js"
+    }
+  },
+  "dependencies": {
+    "is-what": "3.14.1"
+  }
+}

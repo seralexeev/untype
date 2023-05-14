@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig.common.json",
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "react-jsx",
+    "rootDir": "src",
+    "noEmit": true,
+    "target": "ES2021"
+  },
+  "include": ["src"],
+  "references": [{ "path": "../api" }, { "path": "../../../packages/rpc-react" }]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@untype/dumper",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "clean-stack": "3.0.1"
+  }
+}

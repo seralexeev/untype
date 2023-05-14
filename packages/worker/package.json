@@ -1,0 +1,22 @@
+{
+  "name": "@untype/worker",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "type-fest": "3.10.0"
+  },
+  "dependencies": {
+    "@untype/core": "workspace:*",
+    "@untype/pg": "workspace:*",
+    "graphile-worker": "0.13.0",
+    "zod": "3.21.4"
+  }
+}

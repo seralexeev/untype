@@ -1,0 +1,30 @@
+{
+  "name": "@untype/pg",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.js"
+    },
+    "./cli": {
+      "require": "./dist/cli.js"
+    }
+  },
+  "devDependencies": {
+    "@jest/globals": "29.5.0",
+    "@types/big.js": "6.1.6",
+    "@types/dedent": "0.7.0",
+    "@types/pg": "8.6.6",
+    "commander": "9.5.0",
+    "testcontainers": "9.8.0"
+  },
+  "dependencies": {
+    "@untype/core": "workspace:*",
+    "big.js": "6.2.1",
+    "dedent": "0.7.0",
+    "pg": "8.10.0"
+  }
+}

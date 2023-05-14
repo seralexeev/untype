@@ -1,0 +1,16 @@
+name: ⭐️ Main Branch
+on:
+  push:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  ci:
+    name: '🛠️ Check'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
