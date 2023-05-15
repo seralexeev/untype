@@ -1,20 +1,33 @@
-import { IncomingMessage, ServerResponse } from 'node:http';
-
 import { BadRequestError, Class, Container, InternalError, UnauthorizedError, exists, trimToNull } from '@untype/core';
+import { IncomingMessage, ServerResponse } from 'node:http';
+import { MatchResult, match, pathToRegexp } from 'path-to-regexp';
 import { z } from 'zod';
-
-import { RestEndpoint, RpcEndpoint } from './endpoint';
+import { Endpoint } from './endpoint';
 import { EndpointResponse } from './response';
 
-type HandlerArgs = { req: IncomingMessage; res: ServerResponse; input: unknown };
+type HandlerArgs = {
+    req: IncomingMessage;
+    res: ServerResponse;
+    input: unknown;
+    params: Record<string, string>;
+    query: Record<string, string>;
+};
+
 type HandlerFunction = (args: HandlerArgs) => Promise<EndpointResponse>;
 const httpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 export type HttpMethod = z.infer<typeof httpMethodSchema>;
-export type EndpointCollection = Record<string, Partial<Record<HttpMethod, { handler: HandlerFunction }>>>;
+
+export type EndpointCollection = Record<string, Partial<Record<HttpMethod, EndpointHandler>>>;
+export type EndpointHandler = {
+    method: HttpMethod;
+    handler: HandlerFunction;
+    regexp: RegExp;
+    match: (method: HttpMethod, path: string) => false | MatchResult;
+};
 
 export type ControllerOptions = {
     container: Container;
-    controllers: Record<string, Class<unknown>>;
+    controllers: Record<string, Class<unknown> | Record<string, unknown>>;
     onOutputValidationError?: (error: unknown, args: HandlerArgs) => unknown;
     onInputValidationError?: (error: unknown, args: HandlerArgs) => unknown;
     onUnauthorized?: (args: HandlerArgs) => unknown;
@@ -44,7 +57,7 @@ export const makeControllerHandlers = (options: ControllerOptions) => {
     const endpoints: EndpointCollection = {};
 
     const instances = Object.values(controllers).map((controller) => ({
-        instance: container.resolve(controller) as Record<string, unknown>,
+        instance: typeof controller === 'function' ? (container.resolve(controller) as Record<string, unknown>) : controller,
         controller,
     }));
 
@@ -63,8 +76,6 @@ export const makeControllerHandlers = (options: ControllerOptions) => {
             const invoker = typeof Invoker === 'function' ? container.resolve(Invoker) : Invoker;
 
             const handler: HandlerFunction = async (args) => {
-                const { req, res } = args;
-                let input = args.input;
                 // auth is being called even if anonymous is true
                 // it allows us to use optional auth in some cases
                 const auth = await invoker.auth(args);
@@ -72,13 +83,23 @@ export const makeControllerHandlers = (options: ControllerOptions) => {
                     await onUnauthorized(args);
                 }
 
+                const { req, res, query, params } = args;
+                let input = args.input;
+
                 if (config.input) {
                     const inputParsed = config.input.safeParse(input);
                     input = inputParsed.success ? inputParsed.data : await onInputValidationError(inputParsed.error, args);
                 }
 
                 const result = await invoker.invoke({
-                    resolve: (ctx) => config.resolve({ ctx: ctx ? { ...ctx, auth } : { auth }, input }),
+                    resolve: (ctx) => {
+                        return config.resolve({
+                            ctx: ctx ? { ...ctx, auth } : { auth },
+                            input,
+                            query,
+                            params,
+                        });
+                    },
                     input,
                     auth,
                     req,
@@ -106,20 +127,53 @@ export const makeControllerHandlers = (options: ControllerOptions) => {
                 throw new InternalError(`Duplicate endpoint ${httpMethod} ${path}`);
             }
 
-            collection[httpMethod] = { handler };
+            const regexp = pathToRegexp(path, [], {
+                strict: false,
+                sensitive: false,
+                encode: encodeURIComponent,
+            });
+
+            const matchFn = match(path, { decode: decodeURIComponent });
+
+            collection[httpMethod] = {
+                method: httpMethod,
+                handler,
+                regexp,
+                match: (method: HttpMethod, path: string) => {
+                    if (method !== httpMethod) {
+                        return false;
+                    }
+
+                    return matchFn(path);
+                },
+            };
         }
     }
 
-    return { endpoints };
+    const allEndpoints = Object.values(endpoints).flatMap((collection) => Object.values(collection));
+
+    return {
+        endpoints,
+        match: (method: HttpMethod, path: string) => {
+            for (const endpoint of allEndpoints) {
+                const match = endpoint.match(method, path);
+                if (match) {
+                    return { endpoint, params: match.params as Record<string, string> };
+                }
+            }
+
+            return null;
+        },
+    };
 };
 
 const introspectClassKey = ([name, value]: [name: string, value: unknown]) => {
     const path = trimToNull(name.toLocaleLowerCase());
-    if (!path) {
+    if (!path || !(value instanceof Endpoint)) {
         return null;
     }
 
-    if (value instanceof RestEndpoint) {
+    if (value.type === 'REST') {
         // REST endpoint names can be prefixed with the HTTP method otherwise it defaults to GET:
         // - ['/users']
         // - ['GET /users']
@@ -149,13 +203,9 @@ const introspectClassKey = ([name, value]: [name: string, value: unknown]) => {
         return { path: methodOrPath, httpMethod: 'GET' as const, config: value.config, Invoker: value.Invoker };
     }
 
-    if (value instanceof RpcEndpoint) {
-        if (path.startsWith('/')) {
-            throw new InternalError(`RPC endpoint "${path}" should not start with a leading slash`);
-        }
-
-        return { path: `/${path}`, httpMethod: 'POST' as const, config: value.config, Invoker: value.Invoker };
+    if (path.startsWith('/')) {
+        throw new InternalError(`RPC endpoint "${path}" should not start with a leading slash`);
     }
 
-    return null;
+    return { path: `/${path}`, httpMethod: 'POST' as const, config: value.config, Invoker: value.Invoker };
 };

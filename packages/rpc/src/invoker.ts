@@ -2,7 +2,7 @@ import { IncomingMessage, OutgoingMessage } from 'node:http';
 
 import { Class } from '@untype/core';
 
-import { EndpointConfig, RestEndpoint, RpcEndpoint } from './endpoint';
+import { Endpoint, EndpointConfig } from './endpoint';
 import { EndpointResponse, JsonResponse } from './response';
 
 export type HttpContext = { req: IncomingMessage; res: OutgoingMessage };
@@ -13,7 +13,7 @@ export type InvokeArgs<TContext, TAuth> = {
     auth: TAuth;
     req: IncomingMessage;
     res: OutgoingMessage;
-    config: (RpcEndpoint<unknown, unknown> | RestEndpoint<unknown, unknown>)['config'];
+    config: Endpoint<unknown, unknown>['config'];
     endpoint: string;
 };
 
@@ -27,11 +27,11 @@ export abstract class ControllerInvoker<TContext, TAuth> {
 
     protected rpc = <TInput, TOutput, TAnonymous extends true | undefined>(
         config: EndpointConfig<TContext, TAuth, TInput, TOutput, TAnonymous>,
-    ): RpcEndpoint<TInput, TOutput> => new RpcEndpoint<TInput, TOutput>(this, config);
+    ): Endpoint<TInput, TOutput> => new Endpoint<TInput, TOutput>('RPC', this, config);
 
     protected rest = <TInput, TOutput, TAnonymous extends true | undefined>(
         config: EndpointConfig<TContext, TAuth, TInput, TOutput, TAnonymous>,
-    ): RestEndpoint<TInput, TOutput> => new RestEndpoint<TInput, TOutput>(this, config);
+    ): Endpoint<TInput, TOutput> => new Endpoint<TInput, TOutput>('REST', this, config);
 
     public async onRawOutput(output: unknown): Promise<EndpointResponse> {
         return new JsonResponse({ data: output });
@@ -41,11 +41,11 @@ export abstract class ControllerInvoker<TContext, TAuth> {
 export const createEndpointFactory = <TContext, TAuth>(Invoker: Class<ControllerInvoker<TContext, TAuth>>) => {
     const rpc = <TInput, TOutput, TAnonymous extends true | undefined>(
         config: EndpointConfig<TContext, TAuth, TInput, TOutput, TAnonymous>,
-    ) => new RpcEndpoint<TInput, TOutput>(Invoker, config);
+    ) => new Endpoint<TInput, TOutput>('RPC', Invoker, config);
 
     const rest = <TInput, TOutput, TAnonymous extends true | undefined>(
         config: EndpointConfig<TContext, TAuth, TInput, TOutput, TAnonymous>,
-    ) => new RestEndpoint<TInput, TOutput>(Invoker, config);
+    ) => new Endpoint<TInput, TOutput>('REST', Invoker, config);
 
     return { rpc, rest };
 };

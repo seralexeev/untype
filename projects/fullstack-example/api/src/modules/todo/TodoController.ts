@@ -13,7 +13,7 @@ export class TodoController {
             page: z.number(),
             pageSize: z.number(),
         }),
-        resolve: async ({ ctx, input }) => {
+        resolve: async ({ ctx, input, }) => {
             return e.Todos.findAndCount(ctx.t, {
                 filter: {
                     text: { includesInsensitive: input.search },

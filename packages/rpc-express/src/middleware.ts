@@ -7,22 +7,29 @@ import { ZodError } from 'zod';
 
 type ControllerOptions = {
     container: Container;
-    controllers: Record<string, Class<unknown>>;
+    controllers: Record<string, Class<unknown> | Record<string, unknown>>;
 };
 
 export const createControllers = (options: ControllerOptions) => {
-    const { endpoints } = makeControllerHandlers(options);
+    const { endpoints, match } = makeControllerHandlers(options);
 
     const handler = async (req: Request, res: Response, next: NextFunction) => {
-        const endpoint = endpoints[req.path.toLowerCase()]?.[req.method as HttpMethod];
-        if (!endpoint) {
+        const result = match(req.method as HttpMethod, req.path);
+        if (!result) {
             return next();
         }
 
+        const { endpoint, params } = result;
         try {
             // handle file uploads
             const file = Array.isArray(req.files) ? req.files[0] : null;
-            const result = await endpoint.handler({ req, res, input: file ?? req.body });
+            const result = await endpoint.handler({
+                params,
+                req,
+                res,
+                input: file ?? req.body,
+                query: req.query as Record<string, string>, // TODO: fix this type
+            });
 
             if (result) {
                 await result.write({ res, req });

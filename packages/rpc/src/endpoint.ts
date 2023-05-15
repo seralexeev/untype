@@ -1,15 +1,13 @@
 import { Class, Merge, OmitNever } from '@untype/core';
-import { z } from 'zod';
-
 import { Jsonify } from 'type-fest';
+import { z } from 'zod';
 import { ControllerInvoker } from './invoker';
 
 type InvokerType = ControllerInvoker<any, any> | Class<ControllerInvoker<any, any>>;
 
-export class RpcEndpoint<TInput, TOutput> {
-    public type = 'RPC' as const;
-
+export class Endpoint<TInput, TOutput> {
     public constructor(
+        public type: 'RPC' | 'REST',
         public Invoker: InvokerType,
         public config: {
             input?: TInput;
@@ -20,34 +18,20 @@ export class RpcEndpoint<TInput, TOutput> {
     ) {}
 }
 
-export class RestEndpoint<TInput, TOutput> {
-    public type = 'REST' as const;
-
-    public constructor(
-        public Invoker: InvokerType,
-        public config: {
-            input?: z.ZodType<TInput>;
-            output?: z.ZodType<TOutput>;
-            anonymous?: boolean;
-            resolve: (args: any) => unknown;
-        },
-    ) {}
-}
-
 type InferZod<T> = T extends z.ZodType ? z.infer<T> : never;
 
-type ResolveCallback<TContext, TAuth, TInput, TOutput, TAnonymous> = (args: {
+type ResolveCallback<TContext, TAuth, TInput, TOutput, TAnonymous extends true | undefined> = (args: {
     input: TInput;
-    ctx: undefined extends TAnonymous ? TContext & { auth: TAuth } : TContext & { auth: TAuth | null };
+    ctx: TContext & { auth: undefined extends TAnonymous ? TAuth | null : TAuth };
+    params: Record<string, string>;
+    query: Record<string, string>;
 }) => Promise<TOutput> | TOutput;
 
-export type EndpointConfig<TContext, TAuth, TInput, TOutput, TAnonymous> = {
+export type EndpointConfig<TContext, TAuth, TInput, TOutput, TAnonymous extends true | undefined> = {
     input?: TInput extends z.ZodType ? TInput : never;
     output?: z.ZodType<TOutput>;
     anonymous?: TAnonymous;
     resolve: ResolveCallback<TContext, TAuth, InferZod<TInput>, TOutput, TAnonymous>;
-    description?: string;
-    summary?: string;
 };
 
 export type RpcApi<T> = Merge<
@@ -55,7 +39,7 @@ export type RpcApi<T> = Merge<
 >;
 
 type RpcControllerApi<T> = OmitNever<{
-    [K in keyof T]: T[K] extends RpcEndpoint<infer TInput, infer TOutput>
+    [K in keyof T]: T[K] extends Endpoint<infer TInput, infer TOutput>
         ? TInput extends z.ZodType<any, any, infer Q>
             ? { output: Jsonify<TOutput>; input: Q }
             : { output: Jsonify<TOutput> }
