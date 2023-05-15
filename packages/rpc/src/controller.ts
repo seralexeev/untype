@@ -1,4 +1,4 @@
-import { BadRequestError, Class, Container, InternalError, UnauthorizedError, exists, trimToNull } from '@untype/core';
+import { BadRequestError, Class, ContainerType, InternalError, UnauthorizedError, exists, trimToNull } from '@untype/core';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { MatchResult, match, pathToRegexp } from 'path-to-regexp';
 import { z } from 'zod';
@@ -26,7 +26,7 @@ export type EndpointHandler = {
 };
 
 export type ControllerOptions = {
-    container: Container;
+    container: ContainerType;
     controllers: Record<string, Class<unknown> | Record<string, unknown>>;
     onOutputValidationError?: (error: unknown, args: HandlerArgs) => unknown;
     onInputValidationError?: (error: unknown, args: HandlerArgs) => unknown;

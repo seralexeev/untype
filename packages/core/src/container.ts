@@ -1,8 +1,7 @@
 import { Constructor } from './types';
 
-export type InjectionToken<T = any> = Constructor<T> | string | symbol;
 export type ContainerType = {
-    resolve<T>(token: InjectionToken<T>): T;
+    resolve<T>(token: Constructor<T> | string | symbol): T;
 };
 
 export class Container {

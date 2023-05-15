@@ -1,12 +1,12 @@
 import { never } from '@untype/core';
-import { untypeLogger } from '@untype/logger';
+import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
 import { cron } from '@untype/worker';
 import { singleton } from 'tsyringe';
 
 @singleton()
 export class LogWorker {
-    public constructor(private logger: untypeLogger, private pg: Pg) {}
+    public constructor(private logger: Logger, private pg: Pg) {}
 
     public ['test/DATE_DIFF'] = cron({
         pattern: '* * * * *',

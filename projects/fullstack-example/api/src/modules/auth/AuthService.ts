@@ -1,4 +1,4 @@
-import { untypeLogger } from '@untype/logger';
+import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
 import { Response } from 'express';
 import { OAuth2Client, UserRefreshClient } from 'google-auth-library';
@@ -11,7 +11,7 @@ export class AuthService {
     private config;
     private authClient;
 
-    public constructor({ config }: Config, private pg: Pg, private logger: untypeLogger) {
+    public constructor({ config }: Config, private pg: Pg, private logger: Logger) {
         this.config = config;
         this.authClient = new OAuth2Client({
             clientId: this.config.auth.google.clientId,

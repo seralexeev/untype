@@ -1,4 +1,4 @@
-import { BadRequestError, Class, Container, InternalError, ServiceError } from '@untype/core';
+import { BadRequestError, Class, ContainerType, InternalError, ServiceError } from '@untype/core';
 import { HttpMethod, makeControllerHandlers } from '@untype/rpc';
 import cookieParser from 'cookie-parser';
 import express, { ErrorRequestHandler, Express, NextFunction, Request, Response } from 'express';
@@ -6,7 +6,7 @@ import multer from 'multer';
 import { ZodError } from 'zod';
 
 type ControllerOptions = {
-    container: Container;
+    container: ContainerType;
     controllers: Record<string, Class<unknown> | Record<string, unknown>>;
 };
 

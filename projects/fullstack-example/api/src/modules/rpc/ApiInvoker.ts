@@ -1,4 +1,4 @@
-import { untypeLogger } from '@untype/logger';
+import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
 import { ControllerInvoker, InvokeArgs } from '@untype/rpc';
 import { Request, Response } from 'express';
@@ -14,7 +14,7 @@ export class ApiInvoker extends ControllerInvoker<ApiContext, ApiUser> {
     private config;
     private authClient;
 
-    public constructor(private pg: Pg, { config }: Config, private authService: AuthService, private logger: untypeLogger) {
+    public constructor(private pg: Pg, { config }: Config, private authService: AuthService, private logger: Logger) {
         super();
 
         this.config = config;

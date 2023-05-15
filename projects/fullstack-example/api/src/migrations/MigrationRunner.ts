@@ -1,4 +1,4 @@
-import { untypeLogger } from '@untype/logger';
+import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
 import { MigrationRunner } from '@untype/migrations';
 
@@ -7,7 +7,7 @@ import { migrations } from './migrations';
 export class Migrations {
     private runner;
 
-    public constructor(logger: untypeLogger, pg: Pg) {
+    public constructor(logger: Logger, pg: Pg) {
         this.runner = new MigrationRunner(logger, pg);
     }
 
@@ -17,7 +17,7 @@ export class Migrations {
 }
 
 const run = async () => {
-    const logger = new untypeLogger({ pretty: 'yaml' });
+    const logger = new Logger({ pretty: 'yaml' });
     const pg = new Pg({ master: 'postgres://untype:untype@localhost:5434/untype' });
 
     try {

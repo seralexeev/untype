@@ -1,3 +1,5 @@
+import { ContainerType, InternalError, LoggerType, Merge, OmitNever } from '@untype/core';
+import { Pg, Transaction } from '@untype/pg';
 import {
     CronItem,
     CronItemOptions,
@@ -13,10 +15,6 @@ import {
 import { makeAddJob } from 'graphile-worker/dist/helpers';
 import { Class } from 'type-fest';
 import { z } from 'zod';
-
-import { Container, InternalError, LoggerType, Merge, OmitNever } from '@untype/core';
-import { Pg, Transaction } from '@untype/pg';
-
 import { UnrecoverableWorkerError } from './errors';
 import { createWorkerUtils } from './utils';
 
@@ -80,7 +78,7 @@ export class WorkerScheduler<T extends Record<string, Class<any>>> {
     private workerUtils?: WorkerUtils;
     public taskNames: string[] = [];
 
-    public constructor(private container: Container, private logger: LoggerType, private pg: Pg) {}
+    public constructor(private container: ContainerType, private logger: LoggerType, private pg: Pg) {}
 
     public get utils() {
         if (!this.workerUtils) {

@@ -7,7 +7,7 @@ import { prod } from './env/prod';
 
 export class Config extends createConfig({
     shape,
-    prefix: 'untype_EXAMPLE__',
+    prefix: 'UNTYPE_EXAMPLE__',
     source: process.env,
     environments: { prod, local, dev },
 }) {}

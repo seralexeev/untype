@@ -1,11 +1,11 @@
-import { untypeLogger } from '@untype/logger';
+import { Logger } from '@untype/logger';
 import { fileInput } from '@untype/rpc';
 import { singleton } from 'tsyringe';
 import { rpc } from '../rpc';
 
 @singleton()
 export class FileController {
-    public constructor(private logger: untypeLogger) {}
+    public constructor(private logger: Logger) {}
 
     public ['files/uploadPublic'] = rpc({
         input: fileInput,

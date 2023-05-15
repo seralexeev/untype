@@ -6,7 +6,7 @@ import { gray, green, red, yellow } from 'colorette';
 import yaml from 'js-yaml';
 import { env } from 'node:process';
 
-export class untypeLogger implements LoggerType {
+export class Logger implements LoggerType {
     private highlight;
     private dumper;
     private level;
@@ -149,7 +149,7 @@ export type LoggerOptions = {
     dumper?: Dumper;
 };
 
-export const logger = new untypeLogger({
+export const logger = new Logger({
     level: 'debug',
     pretty: env.NODE_ENV === 'production' ? 'json' : 'yaml',
 });

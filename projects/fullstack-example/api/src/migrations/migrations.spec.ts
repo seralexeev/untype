@@ -1,13 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
-import { untypeLogger } from '@untype/logger';
+import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { Migrations } from './MigrationRunner';
 
-describe('@find-my-ride/api migrations', () => {
-    const logger = new untypeLogger({ level: 'error' });
+describe('@fullstack-example/api migrations', () => {
+    const logger = new Logger({ level: 'error' });
     let container: StartedTestContainer;
     let pg: Pg;
 
