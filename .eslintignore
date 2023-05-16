@@ -3,4 +3,5 @@ dist/
 *.min.js
 *.map
 *.snap
-jest.config.js
+jest.*.js
+.eslintrc.js

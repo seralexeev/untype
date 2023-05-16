@@ -25,6 +25,6 @@
     "@untype/core": "workspace:*",
     "big.js": "6.2.1",
     "dedent": "0.7.0",
-    "pg": "8.10.0"
+    "pg": "8.11.0"
   }
 }

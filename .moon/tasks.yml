@@ -17,7 +17,6 @@ tasks:
   build:
     command:
       - 'tsc'
-      - '--build'
       - '--pretty'
     inputs:
       - '@globs(sources)'
@@ -27,6 +26,8 @@ tasks:
       - '/tsconfig.common.json'
     outputs:
       - 'dist'
+    deps:
+      - '^:build'
     options:
       outputStyle: buffer-only-failure
   format:
@@ -50,10 +51,10 @@ tasks:
       - 'jest'
       - '--passWithNoTests'
     inputs:
-      - 'src/**/*'
-      - 'jest.config.*'
+      - src/**/*
+      - jest.config.*
     deps:
-      - build
+      - '^:build'
     options:
       outputStyle: buffer-only-failure
   syncpack:
@@ -65,6 +66,7 @@ tasks:
   depcheck:
     command:
       - depcheck
+      - --ignore-patterns=dist
     inputs:
       - '@globs(sources)'
     options:
@@ -80,7 +82,7 @@ tasks:
       - '--exit-on-fatal-error'
       - '--ignore-path'
       - '@in(4)'
-      - '.'
+      - 'src'
     inputs:
       - '@globs(sources)'
       - '@globs(tests)'

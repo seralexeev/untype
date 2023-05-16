@@ -2,9 +2,6 @@
   "files": [],
   "references": [
     {
-      "path": "packages"
-    },
-    {
       "path": "packages/cli"
     },
     {
@@ -42,9 +39,6 @@
     },
     {
       "path": "packages/worker"
-    },
-    {
-      "path": "projects"
     },
     {
       "path": "projects/fullstack-example/api"
