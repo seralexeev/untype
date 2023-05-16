@@ -1,4 +1,4 @@
-import { RpcOutput, todoStatuses } from '@fullstack-example/api';
+import { RpcOutput, todoStatuses } from '@untype/fullstack-example-api';
 import * as ant from 'antd';
 import { FC } from 'react';
 import { useRpc } from '../rpc/useRpc';

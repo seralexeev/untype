@@ -96,7 +96,6 @@ const generate = async (
         await fs.mkdir(`${directory}/generated`, { recursive: true });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const allEntities = ((schema as any)._implementationsMap['Node'] as ReturnType<(typeof schema)['getImplementations']>)
         .objects;
 

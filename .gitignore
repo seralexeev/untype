@@ -73,3 +73,6 @@ Pods
 *dSYM.zip
 *.mobileprovision
 fastlane/report.xml
+# moon
+.moon/cache
+.moon/docker

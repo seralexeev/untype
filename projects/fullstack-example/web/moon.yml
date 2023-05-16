@@ -1,0 +1,33 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+fileGroups:
+  vite:
+    - 'src/**/*'
+    - 'env.d.ts'
+    - 'index.html'
+    - 'vite.config.*'
+
+tasks:
+  dev:
+    command: 'vite dev'
+    local: true
+
+  bundle:
+    command: 'vite build'
+    deps:
+      - '~:build'
+    inputs:
+      - '@group(vite)'
+    outputs:
+      - 'dist'
+
+  build:
+    outputs: []
+    options:
+      mergeOutputs: replace
+
+  preview:
+    command: 'vite preview'
+    deps:
+      - '~:build'
+    local: true

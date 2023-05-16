@@ -1,4 +1,59 @@
 {
   "files": [],
-  "references": [{ "path": "packages" }, { "path": "projects" }]
+  "references": [
+    {
+      "path": "packages"
+    },
+    {
+      "path": "packages/cli"
+    },
+    {
+      "path": "packages/config"
+    },
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/dumper"
+    },
+    {
+      "path": "packages/geo"
+    },
+    {
+      "path": "packages/logger"
+    },
+    {
+      "path": "packages/migrations"
+    },
+    {
+      "path": "packages/orm"
+    },
+    {
+      "path": "packages/pg"
+    },
+    {
+      "path": "packages/rpc"
+    },
+    {
+      "path": "packages/rpc-express"
+    },
+    {
+      "path": "packages/rpc-react"
+    },
+    {
+      "path": "packages/worker"
+    },
+    {
+      "path": "projects"
+    },
+    {
+      "path": "projects/fullstack-example/api"
+    },
+    {
+      "path": "projects/fullstack-example/web"
+    },
+    {
+      "path": "projects/minimal-example"
+    }
+  ]
 }

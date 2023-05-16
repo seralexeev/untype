@@ -1,0 +1,8 @@
+ignores:
+    - '@types/node'
+    - eslint-*
+    - ts-node
+    - tsc-watch
+    - typescript
+ignore-patterns:
+    - dist/

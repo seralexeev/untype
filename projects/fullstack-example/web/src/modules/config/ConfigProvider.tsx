@@ -1,6 +1,6 @@
 import { createContext, FC, ReactNode, useContext } from 'react';
 
-import { RpcOutput } from '@fullstack-example/api';
+import { RpcOutput } from '@untype/fullstack-example-api';
 import { useRpc } from '../rpc/useRpc';
 import { ui } from '../ui';
 

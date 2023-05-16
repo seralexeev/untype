@@ -6,7 +6,7 @@ import path from 'node:path';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { Migrations } from './MigrationRunner';
 
-describe('@fullstack-example/api migrations', () => {
+describe('@untype/fullstack-example-api migrations', () => {
     const logger = new Logger({ level: 'error' });
     let container: StartedTestContainer;
     let pg: Pg;

@@ -8,5 +8,12 @@
     "target": "ES2021"
   },
   "include": ["src"],
-  "references": [{ "path": "../api" }, { "path": "../../../packages/rpc-react" }]
+  "references": [
+    {
+      "path": "../../../packages/rpc-react"
+    },
+    {
+      "path": "../api"
+    }
+  ]
 }

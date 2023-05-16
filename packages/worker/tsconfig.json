@@ -5,5 +5,12 @@
     "outDir": "dist"
   },
   "include": ["src"],
-  "references": [{ "path": "../core" }, { "path": "../orm" }, { "path": "../pg" }, { "path": "../dumper" }]
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../pg"
+    }
+  ]
 }

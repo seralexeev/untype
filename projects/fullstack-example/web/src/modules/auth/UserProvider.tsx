@@ -1,4 +1,4 @@
-import { RpcOutput } from '@fullstack-example/api';
+import { RpcOutput } from '@untype/fullstack-example-api';
 import { isHttpError, useAxios } from '@untype/rpc-react';
 import { FC, ReactNode, createContext, useContext, useEffect } from 'react';
 import { useReset, useRpc } from '../rpc/useRpc';

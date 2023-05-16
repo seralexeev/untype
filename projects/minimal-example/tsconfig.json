@@ -7,15 +7,11 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../../packages/core" },
-    { "path": "../../packages/pg" },
-    { "path": "../../packages/rpc" },
-    { "path": "../../packages/migrations" },
-    { "path": "../../packages/orm" },
-    { "path": "../../packages/logger" },
-    { "path": "../../packages/geo" },
-    { "path": "../../packages/worker" },
-    { "path": "../../packages/config" },
-    { "path": "../../packages/rpc-express" }
+    {
+      "path": "../../packages/rpc"
+    },
+    {
+      "path": "../../packages/rpc-express"
+    }
   ]
 }

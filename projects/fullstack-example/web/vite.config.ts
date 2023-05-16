@@ -10,6 +10,9 @@ import svgr from 'vite-plugin-svgr';
 dns.setDefaultResultOrder('verbatim');
 
 export default defineConfig({
+    build: {
+        outDir: 'dist',
+    },
     plugins: [
         react(),
         svgr(),

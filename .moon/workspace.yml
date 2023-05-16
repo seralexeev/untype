@@ -1,0 +1,25 @@
+# https://moonrepo.dev/docs/config/workspace
+$schema: 'https://moonrepo.dev/schemas/workspace.json'
+
+projects:
+  fullstack-example-api: 'projects/fullstack-example/api'
+  fullstack-example-web: 'projects/fullstack-example/web'
+  minimal-example: 'projects/minimal-example'
+
+  cli: 'packages/cli'
+  config: 'packages/config'
+  core: 'packages/core'
+  dumper: 'packages/dumper'
+  geo: 'packages/geo'
+  logger: 'packages/logger'
+  migrations: 'packages/migrations'
+  orm: 'packages/orm'
+  pg: 'packages/pg'
+  rpc: 'packages/rpc'
+  rpc-express: 'packages/rpc-express'
+  rpc-react: 'packages/rpc-react'
+  worker: 'packages/worker'
+
+vcs:
+  manager: 'git'
+  defaultBranch: 'main'

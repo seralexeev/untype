@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { camelCase } from 'change-case';
 import { pluralize } from 'graphile-build';
 import { PoolClient } from 'pg';

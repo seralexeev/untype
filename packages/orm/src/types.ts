@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { OmitNever } from '@untype/core';
 
 import { Filter } from './filter';

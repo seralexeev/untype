@@ -1,0 +1,4 @@
+ignores:
+    - '@untype/cli'
+ignore-patterns:
+    - dist/

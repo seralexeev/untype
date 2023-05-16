@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { getNullableType, GraphQLNonNull } from 'graphql';
 import { SchemaBuilder } from 'postgraphile';
 

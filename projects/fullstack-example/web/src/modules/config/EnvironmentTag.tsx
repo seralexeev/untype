@@ -1,7 +1,7 @@
 import * as ant from 'antd';
 import { FC } from 'react';
 
-import { RpcOutput } from '@fullstack-example/api';
+import { RpcOutput } from '@untype/fullstack-example-api';
 import { useConfig } from './ConfigProvider';
 
 export const EnvironmentTag: FC = () => {

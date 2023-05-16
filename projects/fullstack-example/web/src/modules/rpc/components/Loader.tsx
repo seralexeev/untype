@@ -1,4 +1,4 @@
-import { RpcEndpoint, RpcInput, RpcOutput } from '@fullstack-example/api';
+import { RpcEndpoint, RpcInput, RpcOutput } from '@untype/fullstack-example-api';
 import { UseQueryResult } from '@tanstack/react-query';
 import { Fragment, ReactNode } from 'react';
 import { useRpc } from '../../rpc/useRpc';

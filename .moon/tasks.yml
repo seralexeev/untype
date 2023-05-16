@@ -1,0 +1,94 @@
+# https://moonrepo.dev/docs/config/tasks
+$schema: 'https://moonrepo.dev/schemas/tasks.json'
+
+implicitInputs:
+  - 'package.json'
+
+fileGroups:
+  configs:
+    - '*.{js,json,yml,yaml}'
+  sources:
+    - 'public/**/*'
+    - 'src/**/*'
+  tests:
+    - '**/*.spec.*'
+
+tasks:
+  build:
+    command:
+      - 'tsc'
+      - '--build'
+      - '--pretty'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - 'tsconfig.json'
+      - 'tsconfig.*.json'
+      - '/tsconfig.common.json'
+    outputs:
+      - 'dist'
+    options:
+      outputStyle: buffer-only-failure
+  format:
+    command:
+      - 'prettier'
+      - '--ignore-path'
+      - '@in(0)'
+      - '--write'
+      - '.'
+    inputs:
+      - '/.prettierignore'
+      - '/.prettierrc'
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@globs(configs)'
+      - '**/*.{md,mdx}'
+    options:
+      outputStyle: buffer-only-failure
+  test:
+    command:
+      - 'jest'
+      - '--passWithNoTests'
+    inputs:
+      - 'src/**/*'
+      - 'jest.config.*'
+    options:
+      outputStyle: buffer-only-failure
+  syncpack:
+    command:
+      - syncpack
+      - list-mismatches
+    options:
+      outputStyle: buffer-only-failure
+  depcheck:
+    command:
+      - depcheck
+    inputs:
+      - '@globs(sources)'
+    options:
+      outputStyle: buffer-only-failure
+  lint:
+    command:
+      - 'eslint'
+      - '--ext'
+      - '.js,.jsx,.ts,.tsx'
+      - '--fix'
+      - '--report-unused-disable-directives'
+      - '--no-error-on-unmatched-pattern'
+      - '--exit-on-fatal-error'
+      - '--ignore-path'
+      - '@in(4)'
+      - '.'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '*.config.*'
+      - '**/.eslintrc.*'
+      - '/.eslintignore'
+      - '/.eslintrc.*'
+      - 'types/**/*'
+      - 'tsconfig.json'
+      - '/tsconfig.eslint.json'
+      - '/tsconfig.common.json'
+    options:
+      outputStyle: buffer-only-failure

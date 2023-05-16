@@ -1,0 +1,67 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+tasks:
+  db_schema:
+    command: 'untype pg schema src/migrations untype'
+    local: true
+    options:
+      persistent: false
+      outputStyle: buffer
+
+  db_reset:
+    command: 'untype pg reset -n untype -p 5434'
+    local: true
+    options:
+      persistent: false
+      outputStyle: 'buffer'
+
+  db_migration_create:
+    command: 'untype migrations create src/migrations'
+    local: true
+    options:
+      persistent: false
+      outputStyle: buffer
+
+  db_migration_regenerate:
+    command: 'untype migrations regenerate src/migrations'
+    local: true
+    options:
+      persistent: false
+      outputStyle: buffer
+
+  db_migration_apply:
+    command: 'ts-node src/migrations/MigrationRunner.ts -p tsconfig.migrations.json'
+    local: true
+    options:
+      persistent: false
+      outputStyle: buffer
+
+  db_entities_generate:
+    command: 'untype orm generate src/entities -n untype -p 5434'
+    local: true
+    options:
+      persistent: false
+      outputStyle: buffer
+
+  db_dev:
+    command: noop
+    deps:
+      - '~:db_migration_apply'
+      - '~:db_schema'
+      - '~:db_entities_generate'
+    local: true
+    options:
+      runDepsInParallel: false
+      outputStyle: buffer
+
+  db_dev_reset:
+    command: noop
+    deps:
+      - '~:db_reset'
+      - '~:db_migration_apply'
+      - '~:db_schema'
+      - '~:db_entities_generate'
+    local: true
+    options:
+      runDepsInParallel: false
+      outputStyle: buffer
