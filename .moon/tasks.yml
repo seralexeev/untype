@@ -52,6 +52,8 @@ tasks:
     inputs:
       - 'src/**/*'
       - 'jest.config.*'
+    deps:
+      - build
     options:
       outputStyle: buffer-only-failure
   syncpack:
