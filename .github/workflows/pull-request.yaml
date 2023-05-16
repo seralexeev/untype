@@ -7,8 +7,16 @@ concurrency:
 jobs:
   ci:
     name: '🛠️ Check'
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - uses: moonrepo/setup-moon-action@v1
+      - run: moon ci
+
+      - uses: moonrepo/run-report-action@v1
+        if: success() || failure()
+        with:
+          access-token: ${{ secrets.GITHUB_TOKEN }}
