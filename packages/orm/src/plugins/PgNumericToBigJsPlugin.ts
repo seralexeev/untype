@@ -1,10 +1,9 @@
+import { InternalError } from '@untype/core';
 import Big from 'big.js';
 import { GraphQLScalarType, Kind } from 'graphql';
 import { SchemaBuilder } from 'postgraphile';
 
-import { InternalError } from '@untype/core';
-
-export const DecimalScalar = new GraphQLScalarType({
+const DecimalScalar = new GraphQLScalarType({
     name: 'Decimal',
     description: 'Decimal type',
     parseValue: (value: unknown) => value as Big,

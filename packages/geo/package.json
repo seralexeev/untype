@@ -13,8 +13,5 @@
   "dependencies": {
     "geojson-validation": "1.0.2",
     "zod": "3.21.4"
-  },
-  "devDependencies": {
-    "@jest/globals": "29.5.0"
   }
 }

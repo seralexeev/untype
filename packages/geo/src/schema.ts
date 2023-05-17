@@ -60,8 +60,8 @@ export const MultiPolygonSchema: z.ZodType<MultiPolygon> = z.object({
     bbox: BBoxSchema.optional(),
 });
 
-export const GeometrySchema: z.ZodType<Geometry> = z.lazy(() =>
-    z.union([
+export const GeometrySchema: z.ZodType<Geometry> = z.lazy(() => {
+    return z.union([
         PointSchema,
         MultiPointSchema,
         LineStringSchema,
@@ -69,16 +69,16 @@ export const GeometrySchema: z.ZodType<Geometry> = z.lazy(() =>
         PolygonSchema,
         MultiPolygonSchema,
         GeometryCollectionSchema,
-    ]),
-);
+    ]);
+});
 
-export const GeometryCollectionSchema: z.ZodType<GeometryCollection> = z.lazy(() =>
-    z.object({
+export const GeometryCollectionSchema: z.ZodType<GeometryCollection> = z.lazy(() => {
+    return z.object({
         type: z.literal('GeometryCollection'),
         geometries: z.array(GeometrySchema),
         bbox: BBoxSchema.optional(),
-    }),
-);
+    });
+});
 
 export const GeoJsonPropertiesSchema: z.ZodType<GeoJsonProperties> = z.record(z.string(), z.any()).nullable();
 

@@ -11,6 +11,10 @@ tasks:
   dev:
     command: 'vite dev'
     local: true
+    deps:
+      - '~:build'
+    options:
+      runDepsInParallel: false
 
   bundle:
     command: 'vite build'
@@ -20,6 +24,16 @@ tasks:
       - '@group(vite)'
     outputs:
       - 'dist'
+
+  bundle_analyze:
+    command: 'vite build'
+    local: true
+    deps:
+      - '~:build'
+    options:
+      runDepsInParallel: false
+    env:
+      BUNDLE_ANALYZE: 'true'
 
   build:
     outputs: []

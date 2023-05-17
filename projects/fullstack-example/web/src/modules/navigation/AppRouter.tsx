@@ -7,7 +7,6 @@ import { Layout } from '../layout/Layout';
 import { TodoList } from '../todo/TodoList';
 import { ui } from '../ui';
 import { ScrollToTop } from './ScrollToTop';
-import { HomePage } from '../home/HomePage';
 
 export const AppRouter: FC = () => {
     return (
@@ -15,8 +14,7 @@ export const AppRouter: FC = () => {
             <ScrollToTop />
             <AuthRequired>
                 <Routes>
-                    <Route path='/' element={<PageComponent Component={HomePage} title='Home' />} />
-                    <Route path='/todo' element={<PageComponent Component={TodoList} title='Todo' />} />
+                    <Route path='/' element={<PageComponent Component={TodoList} title='Todo' />} />
                     <Route path='*' element={<ui.Box children='Page not found' marginBottom={8} />} />
                 </Routes>
             </AuthRequired>
@@ -44,7 +42,7 @@ const PageComponent: FC<PageComponentProps> = ({ Component, title }) => {
 
     useEffect(() => {
         const prev = document.title;
-        document.title = `🚀 untype | ${title}`;
+        document.title = `🚀 Untype | ${title}`;
         return () => {
             document.title = prev;
         };

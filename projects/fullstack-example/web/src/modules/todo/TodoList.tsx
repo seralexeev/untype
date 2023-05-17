@@ -35,6 +35,7 @@ export const TodoList: FC = () => {
             }}
             loading={isLoading}
             dataSource={data?.items ?? []}
+            rowKey={(x) => x.id}
             columns={[
                 {
                     title: 'Text',
@@ -69,9 +70,7 @@ export const TodoList: FC = () => {
                         }}
                     />
                     <ant.Input placeholder='Search...' value={search} onChange={(e) => setSearch(e.target.value)} />
-                    <ui.Box marginLeft={8}>
-                        <ant.Button icon={<ReloadOutlined />} onClick={() => refetch()} />
-                    </ui.Box>
+                    <ant.Button icon={<ReloadOutlined />} onClick={() => refetch()} />
                 </ui.Box>
             )}
             footer={() => <ant.Typography.Text type='secondary' children={`Total count: ${data?.total ?? 0}`} />}

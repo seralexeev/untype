@@ -62,4 +62,32 @@ describe('Express Middleware', () => {
         expect(statusCode).toEqual(200);
         expect(body).toEqual({ id: '1', data: 'tasks' });
     });
+
+    it('should handle errors thrown by controllers', async () => {
+        const request = makeRequest({
+            'GET /error': rest({
+                anonymous: true,
+                resolve: () => {
+                    throw new Error('Test error');
+                },
+            }),
+        });
+        const { statusCode, body } = await request.get('/error').set('Content-Type', 'application/json');
+        expect(statusCode).toEqual(500);
+        expect(body).toEqual({ code: 'INTERNAL_ERROR' });
+    });
+
+    it('should handle async errors thrown by controllers', async () => {
+        const request = makeRequest({
+            'GET /async-error': rest({
+                anonymous: true,
+                resolve: async () => {
+                    throw new Error('Test error');
+                },
+            }),
+        });
+        const { statusCode, body } = await request.get('/async-error').set('Content-Type', 'application/json');
+        expect(statusCode).toEqual(500);
+        expect(body).toEqual({ code: 'INTERNAL_ERROR' });
+    });
 });

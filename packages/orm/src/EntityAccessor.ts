@@ -290,7 +290,4 @@ export class EntityAccessor<T> {
 
         return gqlQueryBuilder.query;
     };
-
-    // 2. delete by filter
-    // 3. update by filter
 }

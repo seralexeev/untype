@@ -1010,6 +1010,114 @@ To enable syntax highlighting for the `sql` tagged template you can use the - [S
 
 It also checks sql queries for errors, but doesn't work well with sql fragments and raw fragments.
 
+## @untype/orm
+
+**@untype/orm** is a simple but powerful ORM for PostgreSQL based on postgraphile and tightly integrated with @untype/pg.
+
+The idea is to use the power of postgraphile query builder but completely remove the need to generate types and write gql queries by hand. Postgraphile introspects the database and generates GraphQL schema so that you can query the database using GraphQL queries without writing SQL to join tables and filter data. It's fast and easy to use but it has some drawbacks:
+
+-   You need to write GraphQL queries by hand;
+-   You need to generate types for GraphQL queries;
+-   It's challenging to use transactions and raw SQL queries.
+
+**@untype/orm** solves these problems by providing a simple API to perform queries and mutations using GraphQL queries and mutations.
+
+### Usage
+
+To use **@untype/orm** you need to define your entities (you can use generators to generate entities from the database schema):
+
+```ts
+import { EntityAccessor, Field, ForeignField, PrimaryKey } from '@untype/orm';
+
+export type Todo = {
+    pk: PrimaryKey<{ id: string }>;
+    id: Field<string, string | undefined>;
+    status: Field<string, string>;
+    tags: Field<string[], string[] | undefined>;
+    text: Field<string, string>;
+    userId: Field<string, string>;
+    createdAt: Field<Date, Date | undefined>;
+    updatedAt: Field<Date, Date | undefined>;
+    user: ForeignField<User>;
+};
+
+export type User = {
+    pk: PrimaryKey<{ id: string }>;
+    id: Field<string, string | undefined>;
+    email: Field<string, string>;
+    firstName: Field<string, string>;
+    lastName: Field<string, string>;
+    createdAt: Field<Date, Date | undefined>;
+    updatedAt: Field<Date, Date | undefined>;
+    todosConnection: ConnectionField<Todo>;
+    todos: QueryableListField<Todo>;
+};
+
+export const Todos = new EntityAccessor<Todo>('Todo');
+export const Users = new EntityAccessor<User>('User');
+```
+
+Then you need to create an instance of `Pg`:
+
+```ts
+import { Pg } from '@untype/pg';
+
+const pg = new Pg({ applicationName: 'fullstack-example', master: config.pg.master });
+```
+
+and pass it as a first argument to `EntityAccessor`:
+
+```ts
+const todos = await e.Todos.findAndCount(pg, {
+    filter: {
+        text: { includesInsensitive: 'test' },
+    },
+    selector: {
+        id: true,
+        text: true,
+        tags: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        user: ['id', 'firstName', 'lastName'],
+    },
+    limit: 10,
+    offset: 1,
+});
+```
+
+-   The type of the `todos` object is inferred automatically from the `selector` argument. It handles relations and collections automatically. You can use array or object like syntax to specify the fields you want to select. By design you can't select all fields by default, you need to specify them explicitly. It's a good practice to specify only the fields you need to reduce the size of the response.
+-   `filter` is a typed version of `postgraphile-plugin-connection-filter`
+
+To use transaction you need to create a transaction using `Pg.transaction` helper and pass it as a first argument to `EntityAccessor`:
+
+```ts
+const { todos, count } = await pg.transaction((t) => {
+    const [count = never()] = t.sql<{ count: number }>`SELECT COUNT(*) AS "count" FROM todos`;
+
+    const todos = await e.Todos.findAndCount(t, {
+        filter: {
+            text: { includesInsensitive: 'test' },
+        },
+        selector: {
+            id: true,
+            text: true,
+            tags: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true,
+            user: ['id', 'firstName', 'lastName'],
+        },
+        limit: 10,
+        offset: 1,
+    });
+
+    return { count, todos };
+});
+```
+
+You can find more examples in the [fullstack-example](./projects/fullstack-example/) project.
+
 ## @untype/worker
 
 TODO
@@ -1025,5 +1133,3 @@ TODO
 ## @untype/dumper
 
 TODO
-
-## @untype/orm
