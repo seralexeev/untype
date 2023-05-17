@@ -2,9 +2,11 @@
 
 This document provides comprehensive guidance on how to leverage the `@untype` library to construct applications from the ground up. It demonstrates an incremental approach, beginning with basic examples and gradually introducing more complex use cases.
 
-## Server
+## @untype/rpc
 
 The first step is creating a simple REST server that returns a string. Note that the server heavily relies on Dependency Injection (DI) principles. Consequently, you must use a DI framework, such as `tsyringe`, to instantiate the server.
+
+### Minimal server
 
 Here is a minimal example illustrating a server with a single endpoint:
 
@@ -163,6 +165,8 @@ The context object is forwarded to the `resolve` callback. It contains the `auth
 
 Endpoints can return different content types. To do this, use existing types or create a new one. As an example, let's return some HTML from the endpoint using React as a template engine. By default, data is serialized to JSON.
 
+### Custom Response Types
+
 ```diff
  import 'reflect-metadata';
 
@@ -217,6 +221,8 @@ Endpoints can return different content types. To do this, use existing types or 
 ```
 
 `ContentResponse.html` is a helper function that returns `ContentResponse` instance with `text/html` content type. It is a shortcut for `new ContentResponse({ type: 'text/html', body: ... })`.
+
+### Static React Rendering
 
 Instead of creating html by interpolating strings we can use React to render it. To do this we need to install `react` and `react-dom` packages. Then we need to implement custom `EndpointResponse` class:
 
@@ -374,6 +380,8 @@ Now we can return `ReactNode` from any endpoint of the controller and it will be
 
 This approach is useful if you need to create an endpoint with static html content. Auth page, payment page, T&C page, etc. and you don't want to host it as a separate file.
 
+### Adding interaction
+
 Now let's add some interaction to our page. To do that we can introduce a new endpoint that will return a script with a function that will be called on the page load:
 
 ```diff
@@ -457,6 +465,8 @@ Now let's add some interaction to our page. To do that we can introduce a new en
      .listen(3000);
 
 ```
+
+### Input validation
 
 Now we can add a form with to post the data to the server:
 
@@ -574,3 +584,446 @@ Now we can add a form with to post the data to the server:
 ```
 
 We added one more endpoint to handle request. As you can see we also specified the input schema for the endpoint. Validation is done by `zod` library. We also added `express.json()` middleware to parse the request body.
+
+## @untype/rpc-react
+
+You can use inferred input and for your client side application. To do it you need to export typing from the server side and create a react hook to call the rpc methods:
+
+### Server side:
+
+```ts
+export const controllers = {
+    AuthController,
+    ConfigController,
+    TodoController,
+    FileController,
+};
+
+export type Api = RpcApi<typeof controllers>;
+```
+
+### Client side:
+
+```tsx
+// rpc.ts
+export const { useRpc, useInvalidate, useReset } = createRpcHook<Api>({ path: '/api' });
+
+// component.ts
+const { data, refetch, isLoading } = useRpc('todo/find').useQuery({
+    input: { page, pageSize, search },
+});
+```
+
+The library uses `react-query` under the hood with some additional features such as file handling and invalidation.
+
+## @untype/config
+
+`@untype/config` is a library for loading configuration from environment variables. It uses zod to validate the configuration. The library support loading configuration from `ts` files and environment variables.
+
+To define configuration schema we need to create a file `default.ts` file:
+
+```ts
+import { ConfigShape } from '@untype/config';
+import z from 'zod';
+
+export const { shape, define } = new ConfigShape({
+    server: {
+        port: z.number().default(3000),
+    },
+    auth: {
+        google: {
+            clientId: z.string(),
+            clientSecret: z.string(),
+        },
+    },
+    pg: {
+        user: z.string().default('untype'),
+        password: z.string().default('untype'),
+        database: z.string().default('untype'),
+        host: z.string().default('localhost'),
+        port: z.number().default(5434),
+    },
+});
+```
+
+You can export `shape` and `define` from the file and use them to override the config for different environments. It's convinient to define non secret configuration in the `default.ts`. It allows you to use the same configuration for development and production environments and easily override values in runtime if needed.
+
+To override some values for the local environment you can create `local.ts` file:
+
+```ts
+import { define } from './default';
+
+export const local = define({
+    server: {
+        port: 3001,
+    },
+    logger: {
+        level: 'debug',
+        pretty: 'yaml',
+    },
+});
+```
+
+The config is validated on the compile time. If you try to override the value with the wrong type you will get a compile error.
+You can create many files like `local.ts` for different environments. For example you can create `prod.ts` file to override the config for the production environment.
+
+Next step is creating configuration class that can load and parse the configuration:
+
+```ts
+import { createConfig } from '@untype/config';
+
+import { shape } from './env/default';
+import { dev } from './env/dev';
+import { local } from './env/local';
+import { prod } from './env/prod';
+
+export class Config extends createConfig({
+    shape,
+    prefix: 'UNTYPE_EXAMPLE__',
+    source: process.env,
+    environments: { prod, local, dev },
+}) {}
+```
+
+The `createConfig` function accepts the configuration shape, prefix for the environment variables, source of the environment variables and the map of the environments. The `source` can be any `Record<string, string | undefined>` The `environments` is a map of the environment names to the configuration overrides. The `prefix` is used to filter environment variables. For example if you set the prefix to `UNTYPE_EXAMPLE__` the library will only use environment variables that start with `UNTYPE_EXAMPLE__`. The prefix is also used to generate the environment variable names for the nested configuration values. The library will use the following environment variables:
+
+```shell
+export UNTYPE_EXAMPLE__server_port=3001
+export UNTYPE_EXAMPLE__auth_google_clientId=123
+```
+
+The pattern is `<prefix><a>_<b>_<c>`. So that you don't need to define the environment variables for the nested values. The library will automatically infers the environment variable names for the nested values.
+
+### Supported types
+
+Not all zod types are supported. The library supports simple types such as `string`, `number`, `boolean`, `unions` etc.
+
+### Loading configuration
+
+To load the configuration you need to call async `load()` method on the config class:
+
+```ts
+import { Config } from './config';
+
+const config = await Config.load();
+```
+
+If the library can't find the configuration it will throw an error. So that you can call the load function on start of the application. Usually if the configuration is missing it means that the application is misconfigured and it's better to fail fast. The cluster scheduler will restart the application and it will try to load the configuration again until you fix the problem.
+
+The loader tries to find `<prefix>env` or `ENVIRONMENT` environment variable first. It uses the value of the variable to find the environment. If there is no such variable it will fail. Then it loads configuration in the following order merging the values:
+
+1.  from the default configuration
+2.  from the corresponding environment override
+3.  from the environment variables
+
+The last value overrides the previous ones. The loader will throw an error if the configuration is invalid.
+
+### Using configuration
+
+The `Config` is a regular class with public property `config`. You can use it as a dependency in the controllers or other classes:
+
+```ts
+import { Config } from './config';
+
+class HelloController {
+    private config;
+
+    public constructor(private { config }: Config) {
+        super();
+    }
+
+    public ['GET /config'] = this.rest({
+        anonymous: true,
+        resolve: () => ({
+            clientId: this.config.auth.google.clientId,
+        }),
+    });
+}
+```
+
+## @untype/logger
+
+`@untype/logger` is a library for logging. It uses json to serialize messages in the `prod` and any other non dev environments. Locally it provides super readable `yaml` formatting with syntax highlighting.
+
+You can import default logger instance from the package or create a new instance:
+
+```ts
+import { Logger } from '@untype/logger';
+
+export const logger = new Logger({
+    level: 'debug',
+    pretty: env.NODE_ENV === 'production' ? 'json' : 'yaml',
+});
+```
+
+In the local environment the output uses `yaml`:
+
+```bash
+01:31:00 INFO Server listening on port 3000
+┌ config:
+│   server:
+│     port: 3000
+│     includeErrorsResponse: true
+│   logger:
+│     pretty: yaml
+│     level: debug
+│   auth:
+│     google:
+│       clientId: ***
+│       clientSecret: ***
+│   pg:
+│     user: untype
+│     password: untype
+│     database: untype
+│     host: localhost
+│     port: 5434
+│   env: local
+└   version: 0.0.0
+```
+
+## untype/pg
+
+This package was created to provide a standard way to access pg database.
+
+## Motivation
+
+Even if there's an ORM sometimes you need to perform raw queries to optimize performance, use some database functions and use some extensions (e.g PostGIS)
+
+To do it you usually need to add [pg](https://www.npmjs.com/package/pg) and perform queries in the following way:
+
+```typescript
+const { Client } = require('pg');
+const client = new Client();
+await client.connect();
+const res = await client.query('SELECT $1::text as message', ['Hello world!']);
+console.log(res.rows[0].message);
+await client.end();
+```
+
+In the production environment better to use connection pool, even if you have `bgbouncer` in front of you database:
+
+```typescript
+const { Pool } = require('pg');
+const pool = new Pool();
+pool.connect((err, client, release) => {
+    if (err) {
+        return console.error('Error acquiring client', err.stack);
+    }
+    client.query('SELECT NOW()', (err, result) => {
+        release();
+        if (err) {
+            return console.error('Error executing query', err.stack);
+        }
+        console.log(result.rows);
+    });
+});
+```
+
+Luckily `Pool` is a class so you use DI to inject dependencies into our classes by registering it using di container:
+
+```typescript
+const pool = new Pool({
+    connectionString: 'postgres://untype:untype@localhost:5432/untype',
+});
+container.register(Pool, { useValue: pool });
+```
+
+And then use in any service.
+
+The `Pool` class provides all you need to perform queries, but **it too low level so we can improve the situation a little**.
+
+You need to open connection to the database, perform query, close connection, handle errors, etc. It's not a big deal but it's a boilerplate code that can be moved to the separate class.
+
+Also you need to sync placeholders in the query with the parameters:
+
+```typescript
+client.query('SELECT * FROM users WHERE id = $1', [userId]);
+```
+
+When number of parameters is small it's not a big deal, but when you have a lot of parameters it's easy to make a mistake.
+
+## Pg
+
+_Some queries are invalid and provided just an example of how to use the package._
+
+Pg - is a class which wraps the `Pool` and provides convenient interface to perform raw sql queries with the protection from sql injections.
+
+### Creating
+
+To create and register a `Pg` instance use the constructor:
+
+```typescript
+const pool = new Pool({
+    connectionString: 'postgres://untype:untype@localhost:5432/untype',
+});
+
+container.register(Pg, { useValue: new Pg(pool) });
+```
+
+### Using
+
+The `Pg` class has following methods and fields:
+
+-   `pool` - a reference to the pool;
+-   `close` - close underline pool if the `Pg` was created using connection string;
+-   `transaction` - helper to perform queries in a single transaction;
+-   `sql` - tagged template literal helper;
+
+### Sql tagged template
+
+This function utilizes [js tagged template syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates):
+
+```typescript
+const users = await this.pg.sql`SELECT * FROM users`;
+```
+
+The function performs the query using a connection from the pool and returns promise of the `rows` field from a [Result](https://node-postgres.com/api/result) instance.
+
+The tagged template syntax allows you to use variables right inside you queries:
+
+```typescript
+const id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+const users = await this.pg.sql`SELECT * FROM users WHERE id = ${id}`;
+```
+
+**The function also protects you from sql injections, so you can use variables without any additional checks.**
+
+Under the hood the function doesn't naively concatenate strings, it extracts all variables and replaces them with `$1`, `$2` and so on. Then it performs the query using the `pool.query` method.
+
+The function is **generic**, so you can specify the type of the result:
+
+```typescript
+const rows = await pg.sql<{ id: string; name: string }>`SELECT id, name FROM users WHERE id = ${id}`;
+// or
+type UserRow = { id: string; name: string };
+const rows = await pg.sql<UserRow>`SELECT id, name FROM users WHERE id = ${id}`;
+```
+
+You can reuse sql fragments using the `sql` function:
+
+```typescript
+const q1 = sql`SELECT * FROM users WHERE name ilike ${'untype'}`;
+const q2 = sql`SELECT * FROM roles WHERE role_group IN (${['hq', 'admin']})`;
+const field = raw('name');
+
+const rows = await pg.sql`
+    SELECT u.${field}, r.name
+    FROM (${q1}) AS u
+    INNER JOIN (${q2}) AS r ON u.role_id = r.id
+`;
+```
+
+The raw helper allows you to use raw sql fragments instead of variables:
+
+```typescript
+const orderBy = raw('name');
+const orderDirection = raw('ASC');
+
+const rows = await pg.sql`
+    SELECT * 
+    FROM users
+    ORDER BY ${orderBy} ${orderDirection}
+`;
+```
+
+Be careful, the `raw` helper doesn't protect you from sql injections, so you should use it only with trusted data. You can combine it with `zod`'s enums to validate input data.
+
+The `sql` function invokes query in a implicit transaction. With default `READ COMMITTED` isolation level.
+
+### Transaction
+
+The `Pg` class provides a helper to perform queries in a single transaction:
+
+```typescript
+const result = await this.pg.transaction(async (pg) => {
+    const user = await pg.sql`SELECT * FROM users WHERE id = ${id}`;
+    const roles = await pg.sql`SELECT * FROM roles WHERE id IN (${user.role_ids})`;
+
+    return { user, roles };
+});
+```
+
+The helper takes a function which receives a `Pg` instance and returns a promise. The helper performs the following steps:
+
+-   Acquires a connection from the pool;
+-   Starts a transaction;
+-   Calls the function with the `Pg` instance;
+-   If the function resolves commits the transaction;
+-   If the function rejects rolls back the transaction;
+-   Releases the connection back to the pool;
+-   Returns the result of the function.
+-   If the function throws an error the helper rejects with the error.
+
+The helper is useful when you need to perform multiple queries in a single transaction:
+
+```typescript
+class UserService {
+    private changeUser = () => {
+        const result = await this.t.transaction(async (t) => {
+            const user = await t.sql`SELECT * FROM users WHERE id = ${id}`;
+
+            this.updateUserRoles(t, user, roles);
+            this.updateUserPermissions(t, user, permissions);
+
+            return { user, roles };
+        });
+    };
+
+    private updateUserRoles = async (t: Pg, user: User, roles: string[]) => {
+        await t.sql`DELETE FROM user_roles WHERE user_id = ${user.id}`;
+        await t.sql`INSERT INTO user_roles (user_id, role_id) VALUES ${roles.map((role) => [user.id, role])}`;
+    };
+
+    private updateUserPermissions = async (t: Pg, user: User, permissions: string[]) => {
+        await t.sql`DELETE FROM user_permissions WHERE user_id = ${user.id}`;
+        await t.sql`INSERT INTO user_permissions (user_id, permission_id) VALUES ${permissions.map((permission) => [
+            user.id,
+            permission,
+        ])}`;
+    };
+}
+```
+
+If the `updateUserPermissions` function throws an error the transaction will be rolled back and changes in `updateUserRoles` will be discarded. So that you won't get inconsistent data.
+
+The transaction function accepts a second argument with the following options:
+
+-   `isolationLevel` - transaction isolation level, see [Pg Transactions](https://www.postgresql.org/docs/current/transaction-iso.html);
+
+## Read replicas
+
+You can specify read replicas to perform readonly queries:
+
+```ts
+const pg = new Pg({
+    applicationName: 'fullstack-example',
+    master: config.pg.master,
+    readonly: config.pg.replicas,
+});
+
+await pg.readonly.sql`SELECT pg_is_in_recovery()`;
+```
+
+## Syntax highlighting
+
+To enable syntax highlighting for the `sql` tagged template you can use the - [SQL tagged template literals](https://marketplace.visualstudio.com/items?itemName=frigus02.vscode-sql-tagged-template-literals) extension.
+
+It also checks sql queries for errors, but doesn't work well with sql fragments and raw fragments.
+
+## @untype/worker
+
+TODO
+
+## @untype/migrations
+
+TODO
+
+## @untype/core
+
+TODO
+
+## @untype/dumper
+
+TODO
+
+## @untype/orm
