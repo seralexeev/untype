@@ -1,7 +1,5 @@
-import { IncomingMessage, OutgoingMessage } from 'node:http';
-
 import { Class } from '@untype/core';
-
+import { IncomingMessage, OutgoingMessage } from 'node:http';
 import { Endpoint, EndpointConfig } from './endpoint';
 import { EndpointResponse, JsonResponse } from './response';
 

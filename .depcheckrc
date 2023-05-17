@@ -4,5 +4,3 @@ ignores:
     - ts-node
     - tsc-watch
     - typescript
-ignore-patterns:
-    - dist/

@@ -11,5 +11,6 @@
     "tanstack",
     "testcontainers",
     "untype"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
