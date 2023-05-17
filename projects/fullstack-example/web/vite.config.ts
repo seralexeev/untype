@@ -17,7 +17,7 @@ export default defineConfig({
         react(),
         svgr(),
         checker({ typescript: { buildMode: true } }),
-        process.env.BUNDLE_ANALYZE ? visualizer({ open: true }) : null,
+        process.env.BUNDLE_ANALYZE ? visualizer({ open: true, filename: 'dist/stats.html' }) : null,
     ],
     resolve: {
         conditions: ['require'],

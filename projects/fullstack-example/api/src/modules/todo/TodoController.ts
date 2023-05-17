@@ -26,6 +26,7 @@ export class TodoController {
                     status: true,
                     createdAt: true,
                     updatedAt: true,
+                    cover: true,
                     user: ['id', 'firstName', 'lastName'],
                 },
             });
@@ -42,6 +43,7 @@ export class TodoController {
                     text: true,
                     tags: true,
                     status: true,
+                    cover: true,
                     user: ['id', 'firstName', 'lastName'],
                 },
             });
@@ -54,6 +56,7 @@ export class TodoController {
             text: z.string(),
             tags: z.array(z.string()),
             status: TodoStatusSchema,
+            cover: z.string().nullish(),
         }),
         resolve: async ({ ctx, input }) => {
             return e.Todos.upsert(ctx.t, {

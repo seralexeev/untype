@@ -14,6 +14,7 @@ export interface Todo extends ApplyOverride<{
 
     id: Field<string, string | undefined>;
 
+    cover: Field<string | null, string | null | undefined>;
     status: Field<string, string>;
     tags: Field<string[], string[] | undefined>;
     text: Field<string, string>;

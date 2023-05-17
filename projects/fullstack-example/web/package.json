@@ -7,6 +7,7 @@
     "@tanstack/react-query-devtools": "4.29.7",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
+    "@untype/core": "workspace:*",
     "@untype/fullstack-example-api": "workspace:*",
     "@untype/rpc-react": "workspace:*",
     "@vitejs/plugin-react": "4.0.0",
@@ -22,5 +23,8 @@
     "vite": "4.3.7",
     "vite-plugin-checker": "0.6.0",
     "vite-plugin-svgr": "3.2.0"
+  },
+  "dependencies": {
+    "react-dropzone": "14.2.3"
   }
 }

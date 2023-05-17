@@ -1,16 +1,36 @@
-import { Logger } from '@untype/logger';
-import { fileInput } from '@untype/rpc';
+import { FileInput, FileResponse, fileInput } from '@untype/rpc';
+import { Readable } from 'node:stream';
 import { singleton } from 'tsyringe';
-import { rpc } from '../rpc';
+import z from 'zod';
+import { rest, rpc } from '../rpc';
 
 @singleton()
 export class FileController {
-    public constructor(private logger: Logger) {}
+    private files = new Map<string, FileInput>();
 
-    public ['files/uploadPublic'] = rpc({
+    public ['files/upload'] = rpc({
         input: fileInput,
         resolve: async ({ input }) => {
-            this.logger.info('File upload', { input });
+            const id = `file-${this.files.size + 1}`;
+            this.files.set(id, input);
+
+            return { id, url: `/files/${id}` };
+        },
+    });
+
+    public ['GET /files/:id'] = rest({
+        resolve: async ({ params }) => {
+            const file = this.files.get(z.string().parse(params.id));
+
+            if (!file) {
+                throw new Error(`File not found: ${params.id}`);
+            }
+
+            return new FileResponse({
+                stream: Readable.from(file.buffer),
+                contentType: file.mimetype ?? 'application/octet-stream',
+                filename: file.originalname ?? 'file',
+            });
         },
     });
 }

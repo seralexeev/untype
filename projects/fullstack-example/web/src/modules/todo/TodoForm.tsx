@@ -1,6 +1,7 @@
 import { RpcOutput, todoStatuses } from '@untype/fullstack-example-api';
 import * as ant from 'antd';
 import { FC } from 'react';
+import { ImageInput } from '../files/ImageInput';
 import { useRpc } from '../rpc/useRpc';
 
 type EditModel = RpcOutput<'todo/getById'>;
@@ -42,6 +43,10 @@ export const TodoForm: FC<FormProps> = ({ item, onSuccess }) => {
                     placeholder='Status'
                     options={todoStatuses.map((value) => ({ label: value, value }))}
                 />
+            </ant.Form.Item>
+
+            <ant.Form.Item label='Cover' name='cover'>
+                <ImageInput />
             </ant.Form.Item>
 
             <ant.Form.Item>

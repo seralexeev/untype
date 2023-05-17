@@ -48,18 +48,23 @@ export class FileResponse extends EndpointResponse {
     private stream;
     private filename;
     private contentType;
+    private download;
 
-    public constructor(options: { stream: NodeJS.ReadableStream; filename: string; contentType?: string }) {
+    public constructor(options: { stream: NodeJS.ReadableStream; filename: string; contentType?: string; download?: boolean }) {
         super();
 
         this.stream = options.stream;
         this.filename = options.filename;
+        this.download = options.download ?? false;
         this.contentType = options.contentType ?? 'application/octet-stream';
     }
 
     public override write({ res }: HttpContext): void | Promise<void> {
         res.setHeader('Content-Type', this.contentType);
-        res.setHeader('Content-Disposition', `attachment; filename="${this.filename}"`);
+
+        if (this.download) {
+            res.setHeader('Content-Disposition', `attachment; filename="${this.filename}"`);
+        }
 
         this.stream.pipe(res);
     }

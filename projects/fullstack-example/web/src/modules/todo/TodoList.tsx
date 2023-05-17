@@ -41,6 +41,23 @@ export const TodoList: FC = () => {
                     title: 'Text',
                     render: (_, x) => (
                         <ui.Box
+                            width={64}
+                            height={64}
+                            display='flex'
+                            justifyContent='center'
+                            alignItems='center'
+                            border='1px solid #ddd'
+                            backgroundColor='#f5f5f5'
+                            background={x.cover ? `url(api${x.cover})` : undefined}
+                            backgroundSize='cover'
+                            children={x.cover ? undefined : <PlusOutlined />}
+                        />
+                    ),
+                },
+                {
+                    title: 'Text',
+                    render: (_, x) => (
+                        <ui.Box
                             children={x.text}
                             onClick={() => {
                                 return showDrawer({

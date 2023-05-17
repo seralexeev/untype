@@ -171,7 +171,8 @@ CREATE TABLE public.todos (
     status text NOT NULL,
     tags text[] DEFAULT '{}'::text[] NOT NULL,
     created_at timestamp without time zone DEFAULT clock_timestamp() NOT NULL,
-    updated_at timestamp without time zone DEFAULT clock_timestamp() NOT NULL
+    updated_at timestamp without time zone DEFAULT clock_timestamp() NOT NULL,
+    cover text
 );
 
 
