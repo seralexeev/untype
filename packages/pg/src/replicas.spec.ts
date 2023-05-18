@@ -27,7 +27,7 @@ describe('Pg readonly replicas', () => {
 
         pg = new Pg({
             master: `postgres://untype:untype@${container.getHost()}:${container.getMappedPort(5432)}/untype`,
-            readonly: [
+            replicas: [
                 `postgres://untype_ro_1:untype@${container.getHost()}:${container.getMappedPort(5432)}/untype`,
                 `postgres://untype_ro_2:untype@${container.getHost()}:${container.getMappedPort(5432)}/untype`,
             ],

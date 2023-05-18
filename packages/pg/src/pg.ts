@@ -20,14 +20,14 @@ export class Pg implements PgClient {
     public constructor({
         applicationName,
         master,
-        readonly = [],
+        replicas = [],
     }: {
         applicationName?: string;
         master: PoolOrConfig;
-        readonly?: PoolOrConfig[];
+        replicas?: PoolOrConfig[];
     }) {
         this.master = new PooledPg({ applicationName, pool: master });
-        this.replicas = readonly.map((x) => new PooledPg({ applicationName, pool: x }));
+        this.replicas = replicas.map((x) => new PooledPg({ applicationName, pool: x }));
         this.nodes = [this.master, ...this.replicas];
 
         this.transaction = this.master.transaction;
@@ -131,7 +131,7 @@ class PooledPg implements PgClient {
     public query = async <R extends QueryResultRow = any, I extends any[] = any[]>(
         queryTextOrConfig: string | QueryConfig<I>,
         values?: I,
-    ): Promise<QueryResult<R>> => this.connect(async (client) => client.query(queryTextOrConfig, values));
+    ): Promise<QueryResult<R>> => this.connect((client) => client.query(queryTextOrConfig, values));
 
     public connect = async <T>(fn: (client: PoolClient) => Promise<T>): Promise<T> => {
         const client = await this.pool.connect();
