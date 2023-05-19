@@ -29,9 +29,7 @@ export const createApp = async () => {
         includeErrorsResponse: config.server.includeErrorsResponse,
     });
 
-    await container.resolve(TaskScheduler).run(jobHandlers, {
-        cron: { enabled: true },
-    });
+    await container.resolve(TaskScheduler).run(jobHandlers);
 
     app.listen(config.server.port, () => {
         logger.info('Server listening on port 3000');

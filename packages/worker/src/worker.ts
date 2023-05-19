@@ -37,14 +37,14 @@ type HandlerMeta = {
         enabled?: () => boolean;
         input?: z.ZodType;
         cronOptions?: CronItemOptions;
-        resolve: (args: { input: unknown; ctx: unknown; helper: JobHelpers }) => unknown;
+        resolve: (args: { input: unknown; helper: JobHelpers }) => unknown;
     };
 };
 
 export type Wrapper<T> = { [symbol]: T };
 
 type CronHandler = { pattern: string; cronOptions?: CronItemOptions; enabled?: () => boolean };
-type Context = { ctx: unknown; helper: JobHelpers };
+type Context = { helper: JobHelpers };
 
 export function worker<TInput>(config: WithInput<TInput, Context>): Wrapper<WithInput<TInput, Context>>;
 export function worker(config: ResolveFn<Context>): Wrapper<ResolveFn<Context>>;
@@ -62,10 +62,7 @@ export function cron(config: ResolveFn<Context> & CronHandler): Wrapper<ResolveF
 
 export type WorkerConfig = {
     concurrency?: number;
-    cron?: {
-        enabled?: boolean;
-        exceptions?: string; // csv of the cron names to disable
-    };
+    cron?: { disabled?: boolean };
     forbiddenFlags?: string[];
 };
 
@@ -122,6 +119,7 @@ export class WorkerScheduler<T extends Record<string, Class<any>>> {
                 if (!isWorkerHandler(value)) {
                     continue;
                 }
+
                 this.taskNames.push(name);
 
                 if (name in taskList) {
@@ -146,7 +144,7 @@ export class WorkerScheduler<T extends Record<string, Class<any>>> {
                     }
 
                     try {
-                        await resolve({ input, helper, ctx: {} });
+                        await resolve({ input, helper });
                     } catch (error) {
                         if (error instanceof UnrecoverableWorkerError) {
                             this.logger.error('Excluding the job from queue as the error is not recoverable', {
@@ -163,20 +161,13 @@ export class WorkerScheduler<T extends Record<string, Class<any>>> {
 
                 taskList[name] = task;
 
-                if (pattern) {
+                if (config.cron?.disabled !== true && pattern) {
                     if (enabled && !enabled()) {
                         this.logger.info(`Job ${name} skipped due to enabled function`, { name });
                         continue;
                     }
 
-                    if (config.cron?.enabled === true || config.cron?.exceptions?.split(',').includes(name)) {
-                        croneItems.push({ pattern, task: name, options: cronOptions });
-                    } else {
-                        this.logger.info(
-                            `Job ${name} skipped due to config settings. Add this job name to your local config to run it in this environment.`,
-                            { name, config },
-                        );
-                    }
+                    croneItems.push({ pattern, task: name, options: cronOptions });
                 }
             }
         }
