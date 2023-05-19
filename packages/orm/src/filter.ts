@@ -6,7 +6,7 @@ import { Field, ForeignField, QueryableListField } from './types';
 export type Filter<T> =
     | {
           [P in keyof T]?
-              : T[P] extends ForeignField<infer Q>    ? Filter<Q>
+              : T[P] extends ForeignField<infer Q>       ? Filter<Q>
               : T[P] extends QueryableListField<infer Q> ? QueryableListFilter<Q>
               : T[P] extends Field<infer Q>
                   ? [Q] extends [string | null]    ? Scalar<Q>   | StringFilter

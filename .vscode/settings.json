@@ -10,6 +10,7 @@
     "syncpack",
     "tanstack",
     "testcontainers",
+    "Todos",
     "untype"
   ],
   "typescript.tsdk": "node_modules/typescript/lib"
