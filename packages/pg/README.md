@@ -1,6 +1,6 @@
 # 🐘 untype/pg
 
-This library serves as an essential building block providing a convenient interface for working with PostgreSQL. It also bridges other libraries such as [untype/migrations](../migrations), [untype/orm](../pg-orm), and [untype/worker](../worker).
+This library serves as an essential building block providing a convenient interface for working with PostgreSQL. It also bridges other libraries such as [untype/migrations](../migrations), [untype/orm](../orm), and [untype/worker](../worker).
 
 ## Motivation
 
