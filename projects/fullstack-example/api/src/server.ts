@@ -19,7 +19,7 @@ export const createApp = async () => {
     container.register(Logger, { useValue: logger });
     container.register(Container, { useValue: container });
     container.register(Pg, { useValue: new Pg({ applicationName: 'fullstack-example', master: config.pg }) });
-    container.register(Config, { useValue: new Config(config) });
+    container.register(Config, { useValue: config });
 
     const { app } = createServer({
         path: '/api',

@@ -8,11 +8,9 @@ import { e } from '../../entities';
 
 @singleton()
 export class AuthService {
-    private config;
     private authClient;
 
-    public constructor({ config }: Config, private pg: Pg, private logger: Logger) {
-        this.config = config;
+    public constructor(private config: Config, private pg: Pg, private logger: Logger) {
         this.authClient = new OAuth2Client({
             clientId: this.config.auth.google.clientId,
             clientSecret: this.config.auth.google.clientSecret,

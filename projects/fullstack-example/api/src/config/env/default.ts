@@ -2,6 +2,7 @@ import { ConfigShape } from '@untype/config';
 import z from 'zod';
 
 export const { shape, define } = new ConfigShape({
+    env: z.enum(['dev', 'prod', 'local']),
     server: {
         port: z.number().default(3000),
         includeErrorsResponse: z.boolean().default(false),
