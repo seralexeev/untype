@@ -1,6 +1,6 @@
 # 🐘 untype/orm
 
-This library is a wrapper around `PostGraphile`, facilitating an ORM-based approach for database management. It allows for efficient and type-safe operations on a relational database, treating it as an arbitrarily nested graph of objects. The library extensively employs [@untype/pg](../pg/README.md) for database communication.
+This library is a wrapper around `PostGraphile`, facilitating an ORM-based approach for database management. It allows for efficient and type-safe operations on a relational database, treating it as an arbitrarily nested graph of objects. The library extensively employs [@untype/pg](../pg) for database communication.
 
 > PostGraphile empowers you with the full strength of `PostgreSQL` through an exquisitely designed, extendable, customizable, and highly efficient GraphQL server.
 
@@ -253,92 +253,7 @@ type Users = Array<{
 
 _Please note that using nested selectors results in the addition of join operations in the query, which can significantly affect performance. Try to analyze the queries and consider the possibility of adding indexes or writing raw queries manually for particularly critical pieces of your application_
 
-As you can see, we received the correct type for the nested `todos` fields. The library understands that `todos` is not just an object, but an array of objects, and therefore returns the `Array<...>` type. The type inference system is able to determine types for arrays, objects, scalar fields, nullable fields. This is an incredibly powerful mechanism that simplifies the lives of developers and allows, along with [`@untype
-
-## Selectors
-
-Selectors are objects that describe which fields we want to fetch from the database. Selectors can be created using the `createSelector` method or passed directly into the `find`, `findFirst`, `findAndCount`, etc. methods. There are two types of selectors:
-
--   **Array-like** - allows you to describe which fields you want to fetch from the database in the form of an array of string literals. Convenient if we do not want to delve into the entity hierarchy and want to get only root fields. For example, `['id', 'title', 'status']`. They are more compact than `object-like` selectors.
--   **Object-like** - allows you to describe which fields you want to fetch from the database in the form of an object. Convenient if we want to fetch fields of nested entities. For example, `{ id: true, text: true, status: true, user: { id: true, firstName: true } }`.
-
-Selectors can be combined with each other. For example:
-
-```json
-{
-    "id": true,
-    "text": true,
-    "status": true,
-    "user": ["id", "firstName"]
-}
-```
-
-Selectors can be reused for queries, you need to use `createSelector`:
-
-```typescript
-const selector = Todos.createSelector({
-    id: true,
-    text: true,
-    status: true,
-    user: ['id', 'firstName'],
-});
-```
-
-Selectors play a crucial role in application development and how we write code. Thanks to the power of the TypeScript type system and the implementation of `PostGraphile`, we can choose only the necessary slice of the object graph for each specific case and not worry about getting extra data from the database or getting an incorrect description of the entity type, as is the case with classic ORMs for TypeScript. Consider an example:
-
-```typescript
-const users = await Users.find(pg, {
-    selector: ['id'],
-});
-```
-
-In this example, the type of `users` will be:
-
-```typescript
-type Users = Array<{ id: string }>;
-```
-
-If we add more fields, TypeScript will infer the correct type for them as well:
-
-```typescript
-const users = await Users.find(pg, {
-    selector: ['id', 'firstName', 'lastName'],
-});
-
-type Users = Array<{ id: string; firstName: string; lastName: string }>;
-```
-
-Furthermore, if we add nested fields, TypeScript will infer the correct type for them as well. But for this, we need to switch to `object-like` selectors:
-
-```typescript
-const users = await Users.find(pg, {
-    selector: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        todos: {
-            id: true,
-            text: true,
-            status: true,
-        },
-    },
-});
-
-type Users = Array<{
-    id: string;
-    firstName: string;
-    lastName: string;
-    todos: Array<{
-        id: string;
-        text: string;
-        status: string;
-    }>;
-}>;
-```
-
-_Please note that using nested selectors results in the addition of join operations in the query, which can significantly affect performance. Try to analyze the queries and consider the possibility of adding indexes or writing raw queries manually for particularly critical pieces of your application_
-
-As you can see, we received the correct type for the nested `todos` fields. The library understands that `todos` is not just an object, but an array of objects, and therefore returns the `Array<...>` type. The type inference system is able to determine types for arrays, objects, scalar fields, nullable fields. This is an incredibly powerful mechanism that simplifies the lives of developers and allows, along with [`@untype
+As you can see, we received the correct type for the nested `todos` fields. The library understands that `todos` is not just an object, but an array of objects, and therefore returns the `Array<...>` type. The type inference system is able to determine types for arrays, objects, scalar fields, nullable fields. This is an incredibly powerful mechanism that simplifies the lives of developers and allows, along with [`@untype/rpc`](./rpc/README.md) to build end to end typesafe applications from the db to the frontend.
 
 ## Filters
 
