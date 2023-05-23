@@ -1,4 +1,4 @@
-import { define } from './default';
+import { define } from '../default';
 
 export const local = define({
     server: {

@@ -1,5 +1,5 @@
 import { EnvLoader, FileLoader, createConfig } from '@untype/config';
-import { shape } from './env/default';
+import { shape } from './default';
 import { dev } from './env/dev';
 import { local } from './env/local';
 import { prod } from './env/prod';
