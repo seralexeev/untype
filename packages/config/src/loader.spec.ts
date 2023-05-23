@@ -14,18 +14,7 @@ describe('Config Loader', () => {
             },
         });
 
-        class Config extends createConfig({
-            shape,
-            loaders: [
-                new FileLoader({
-                    env: 'dev',
-                    environments: {
-                        dev: define({ a: 'dev-a' }),
-                    },
-                }),
-            ],
-        }) {}
-
+        class Config extends createConfig(shape, [new FileLoader('dev', { dev: define({ a: 'dev-a' }) })]) {}
         const config = await Config.load();
 
         expect(config).toEqual({
@@ -44,17 +33,7 @@ describe('Config Loader', () => {
             },
         });
 
-        class Config extends createConfig({
-            shape,
-            loaders: [
-                new EnvLoader({
-                    prefix: 'CFG__',
-                    source: {
-                        CFG__a: 'a-env',
-                    },
-                }),
-            ],
-        }) {}
+        class Config extends createConfig(shape, [new EnvLoader('CFG__', { CFG__a: 'a-env' })]) {}
 
         const config = await Config.load();
 
@@ -74,23 +53,10 @@ describe('Config Loader', () => {
             },
         });
 
-        class Config extends createConfig({
-            shape,
-            loaders: [
-                new FileLoader({
-                    env: 'dev',
-                    environments: {
-                        dev: define({ a: 'dev-a' }),
-                    },
-                }),
-                new EnvLoader({
-                    prefix: 'CFG__',
-                    source: {
-                        CFG__a: 'a-env',
-                    },
-                }),
-            ],
-        }) {}
+        class Config extends createConfig(shape, [
+            new FileLoader('dev', { dev: define({ a: 'dev-a' }) }),
+            new EnvLoader('CFG__', { CFG__a: 'a-env' }),
+        ]) {}
 
         const config = await Config.load();
 
@@ -110,7 +76,7 @@ describe('Config Loader', () => {
             },
         });
 
-        class Config extends createConfig({ shape }) {}
+        class Config extends createConfig(shape) {}
 
         await expect(Config.load()).rejects.toThrowErrorMatchingInlineSnapshot(
             `"Unable to parse config value for 'b'. Received value 'undefined'"`,

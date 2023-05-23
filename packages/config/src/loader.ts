@@ -5,12 +5,12 @@ export abstract class ConfigLoader {
 }
 
 export class EnvLoader extends ConfigLoader {
-    public constructor(private options: { prefix: string; source: Record<string, string | undefined> }) {
+    public constructor(private prefix: string, private source: Record<string, string | undefined>) {
         super();
     }
 
     public override load = () => {
-        const { prefix, source } = this.options;
+        const { prefix, source } = this;
         const result: Record<string, unknown> = {};
 
         for (const [key, value] of Object.entries(source)) {
@@ -28,12 +28,12 @@ export class EnvLoader extends ConfigLoader {
 }
 
 export class FileLoader extends ConfigLoader {
-    public constructor(private options: { env: string | undefined; environments: Record<string, unknown> }) {
+    public constructor(private env: string | undefined, private environments: Record<string, unknown>) {
         super();
     }
 
     public override load = async () => {
-        const { env, environments } = this.options;
+        const { env, environments } = this;
 
         if (!env) {
             throw new Error(`Environment not provided.`);

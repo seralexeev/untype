@@ -5,14 +5,7 @@ import { ConfigLoader } from './loader';
 import { BaseConfig, InferConfig } from './types';
 import { getStringPreprocessor } from './zod';
 
-type LoaderOptions<TConfig extends BaseConfig<TConfig>> = {
-    shape: TConfig;
-    loaders?: ConfigLoader[];
-};
-
-export const createConfig = <TConfig extends BaseConfig<TConfig>>(options: LoaderOptions<TConfig>) => {
-    const { shape, loaders } = options;
-
+export const createConfig = <TConfig extends BaseConfig<TConfig>>(shape: TConfig, loaders?: ConfigLoader[]) => {
     type ConfigType = InferConfig<TConfig>;
 
     const load = async () => {
@@ -36,14 +29,12 @@ export const createConfig = <TConfig extends BaseConfig<TConfig>>(options: Loade
 
     return class {
         public static load = load;
-        public static options = options;
 
         private constructor() {
             throw new Error(`This class is not meant to be instantiated, use Config.load() instead.`);
         }
     } as any as Class<ConfigType> & {
         load: typeof load;
-        options: LoaderOptions<TConfig>;
     };
 };
 

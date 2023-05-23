@@ -4,18 +4,7 @@ import { dev } from './env/dev';
 import { local } from './env/local';
 import { prod } from './env/prod';
 
-const prefix = 'UNTYPE_EXAMPLE__';
-
-export class Config extends createConfig({
-    shape,
-    loaders: [
-        new FileLoader({
-            env: process.env[`${prefix}env`],
-            environments: { dev, local, prod },
-        }),
-        new EnvLoader({
-            prefix,
-            source: process.env,
-        }),
-    ],
-}) {}
+export class Config extends createConfig(shape, [
+    new FileLoader(process.env.UNTYPE_EXAMPLE__env, { dev, local, prod }),
+    new EnvLoader('UNTYPE_EXAMPLE__env', process.env),
+]) {}
