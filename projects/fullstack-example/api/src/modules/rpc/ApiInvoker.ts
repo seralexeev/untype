@@ -11,13 +11,11 @@ import { ApiUser } from './ApiUser';
 
 @singleton()
 export class ApiInvoker extends ControllerInvoker<ApiContext, ApiUser> {
-    private config;
     private authClient;
 
-    public constructor(private pg: Pg, { config }: Config, private authService: AuthService, private logger: Logger) {
+    public constructor(private pg: Pg, private config: Config, private authService: AuthService, private logger: Logger) {
         super();
 
-        this.config = config;
         this.authClient = new OAuth2Client({
             clientId: this.config.auth.google.clientId,
             clientSecret: this.config.auth.google.clientSecret,
