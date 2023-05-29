@@ -10,6 +10,7 @@ Documentation for packages marked with 📖 is available.
 -   📖 [`@untype/orm`](./packages/orm/README.md) - ORM for PostgreSQL.
 -   📖 [`@untype/rpc`](./packages/rpc/README.md) - Type-safe RPC and REST server.
 -   📖 [`@untype/config`](./packages/config/README.md) - Library for loading and validating configurations.
+-   📖 [`@untype/worker`](./packages/worker/README.md) - Library for easy handling of queues and workers.
 
 TODO: Add documentation for the following packages:
 
@@ -18,7 +19,6 @@ TODO: Add documentation for the following packages:
 -   🔴 [`@untype/logger`](./packages/logger/README.md) - Logger.
 -   🔴 [`@untype/dumper`](./packages/dumper/README.md) - Dumper.
 -   🔴 [`@untype/migrations`](./packages/migrations/README.md) - Library for handling migrations.
--   🔴 [`@untype/worker`](./packages/worker/README.md) - Library for easy handling of queues and workers.
 -   🔴 [`@untype/rpc-react`](./packages/rpc-react/README.md) - React hooks for working with `@untype/rpc`.
 -   🔴 [`@untype/rpc-express`](./packages/rpc-express/README.md) - Middleware for Express to work with `@untype/rpc`.
 

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { e } from '../../entities';
 import { rpc } from '../rpc';
 import { TodoStatusSchema } from './models';
+import { schedule } from '../../worker';
 
 @singleton()
 export class TodoController {
@@ -54,18 +55,18 @@ export class TodoController {
         input: z.object({
             id: z.string().optional(),
             text: z.string(),
-            tags: z.array(z.string()),
-            status: TodoStatusSchema,
-            cover: z.string().nullish(),
         }),
         resolve: async ({ ctx, input }) => {
-            return e.Todos.upsert(ctx.t, {
-                where: { id: input.id },
-                item: {
-                    userId: ctx.auth.id,
-                    ...input,
-                },
+            const { id } = await e.Todos.create(ctx.t, {
+                item: { userId: ctx.auth.id, ...input },
                 selector: ['id'],
+            });
+
+            await schedule(ctx.t, {
+                key: 'todo/SEND_EMAIL',
+                input: {
+                    id: input.id,
+                },
             });
         },
     });
