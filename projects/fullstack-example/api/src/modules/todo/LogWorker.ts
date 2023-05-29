@@ -24,14 +24,14 @@ export class LogWorker {
         },
     });
 
-    public ['todo/SEND_EMAIL'] = task({
+    public ['test/TASK_INPUT'] = task({
         input: z.object({ id: z.string() }),
         resolve: async ({ input }) => {
             this.logger.info('task', input);
         },
     });
 
-    public ['test/COUNT_TODO'] = task({
+    public ['test/TASK'] = task({
         resolve: async () => {
             this.logger.info('task2');
         },
