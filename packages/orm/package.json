@@ -15,10 +15,10 @@
   },
   "devDependencies": {
     "@types/big.js": "6.1.6",
-    "@types/pg": "8.6.6",
+    "@types/pg": "8.10.1",
     "commander": "9.5.0",
     "dedent": "0.7.0",
-    "type-fest": "3.10.0"
+    "type-fest": "3.11.0"
   },
   "dependencies": {
     "@graphile-contrib/pg-many-to-many": "1.0.2",

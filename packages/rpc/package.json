@@ -16,7 +16,7 @@
   "dependencies": {
     "@untype/core": "workspace:*",
     "path-to-regexp": "6.2.1",
-    "type-fest": "3.10.0",
+    "type-fest": "3.11.0",
     "zod": "3.21.4"
   }
 }

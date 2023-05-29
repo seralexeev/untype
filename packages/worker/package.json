@@ -11,7 +11,7 @@
     }
   },
   "devDependencies": {
-    "type-fest": "3.10.0"
+    "type-fest": "3.11.0"
   },
   "dependencies": {
     "@untype/core": "workspace:*",
