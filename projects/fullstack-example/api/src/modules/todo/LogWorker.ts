@@ -1,8 +1,9 @@
 import { never } from '@untype/core';
 import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
-import { cron } from '@untype/worker';
+import { cron, task } from '@untype/worker';
 import { singleton } from 'tsyringe';
+import z from 'zod';
 
 @singleton()
 export class LogWorker {
@@ -20,6 +21,19 @@ export class LogWorker {
             `;
 
             this.logger.info('Date diff', { diff });
+        },
+    });
+
+    public ['test/TASK_INPUT'] = task({
+        input: z.object({ id: z.string() }),
+        resolve: async ({ input }) => {
+            this.logger.info('task', input);
+        },
+    });
+
+    public ['test/TASK'] = task({
+        resolve: async () => {
+            this.logger.info('task2');
         },
     });
 }

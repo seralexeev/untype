@@ -9,6 +9,7 @@ export type PgClient = {
         fn: (t: Transaction) => Promise<T>,
         options?: { isolationLevel?: IsolationLevel | undefined } | undefined,
     ) => Promise<T>;
+    data: Record<string, unknown>;
 };
 
 export type Transaction = {
@@ -16,6 +17,7 @@ export type Transaction = {
     connect: <T>(fn: (client: PoolClient) => Promise<T>) => Promise<T>;
     sql: RawSql;
     isTransaction: true;
+    data: Record<string, unknown>;
 };
 
 export type PgConnection = PgClient | Transaction;

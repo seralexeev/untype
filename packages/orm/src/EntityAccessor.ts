@@ -3,7 +3,7 @@ import { pluralize } from 'graphile-build';
 import { PoolClient } from 'pg';
 
 import { InternalError, NotFoundError } from '@untype/core';
-import { isTransaction, Pg, PgClient, PgConnection, Transaction } from '@untype/pg';
+import { Pg, PgClient, PgConnection, Transaction, isTransaction } from '@untype/pg';
 
 import { Filter } from './filter';
 import { GqlQueryBuilder } from './gql';
@@ -273,21 +273,18 @@ export class EntityAccessor<T> {
     private getQueryRunner = (
         pg: PgClient,
     ): ((client: PoolClient, operation: 'query' | 'mutation', name: string, query: object) => Promise<any>) => {
-        const extendedPg = pg as PgClient & { gqlQueryBuilder: Record<string, GqlQueryBuilder> };
-
-        if (!extendedPg.gqlQueryBuilder) {
-            extendedPg.gqlQueryBuilder = {};
+        if (!pg.data.gqlQueryBuilderCollection) {
+            pg.data.gqlQueryBuilderCollection = {};
         }
 
-        if (!extendedPg.gqlQueryBuilder[this.schemaName]) {
-            extendedPg.gqlQueryBuilder[this.schemaName] = new GqlQueryBuilder(pg.pool, this.schemaName);
+        const gqlQueryBuilderCollection = pg.data.gqlQueryBuilderCollection as Record<string, GqlQueryBuilder>;
+
+        let queryBuilder = gqlQueryBuilderCollection[this.schemaName];
+        if (!queryBuilder) {
+            queryBuilder = new GqlQueryBuilder(pg.pool, this.schemaName);
+            gqlQueryBuilderCollection[this.schemaName] = queryBuilder;
         }
 
-        const gqlQueryBuilder = extendedPg.gqlQueryBuilder[this.schemaName];
-        if (!gqlQueryBuilder) {
-            throw new InternalError('GqlQueryBuilder is not defined');
-        }
-
-        return gqlQueryBuilder.query;
+        return queryBuilder.query;
     };
 }

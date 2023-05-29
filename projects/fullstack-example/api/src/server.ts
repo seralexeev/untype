@@ -7,18 +7,18 @@ import { container } from 'tsyringe';
 import { Config } from './config';
 import { controllers } from './controllers';
 import { Dumper } from './modules/common/Dumper';
-import { TaskScheduler } from './modules/worker/TaskScheduler';
-import { jobHandlers } from './modules/worker/handlers';
+import { startWorker } from './worker';
 
 export const createApp = async () => {
     const config = await Config.load();
     const dumper = new Dumper();
     const logger = new Logger({ ...config.logger, dumper });
+    const pg = new Pg({ applicationName: 'fullstack-example', master: config.pg });
 
     container.register(StdDumper, { useValue: dumper });
     container.register(Logger, { useValue: logger });
     container.register(Container, { useValue: container });
-    container.register(Pg, { useValue: new Pg({ applicationName: 'fullstack-example', master: config.pg }) });
+    container.register(Pg, { useValue: pg });
     container.register(Config, { useValue: config });
 
     const { app } = createServer({
@@ -29,7 +29,7 @@ export const createApp = async () => {
         includeErrorsResponse: config.server.includeErrorsResponse,
     });
 
-    await container.resolve(TaskScheduler).run(jobHandlers);
+    await startWorker({ container, logger, pg });
 
     app.listen(config.server.port, () => {
         logger.info('Server listening on port 3000');

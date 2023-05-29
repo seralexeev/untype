@@ -12,6 +12,7 @@ export class Pg implements PgClient {
     public master;
     public replicas;
 
+    public data = {};
     public transaction;
     public connect;
     public query;
@@ -59,8 +60,9 @@ export class Pg implements PgClient {
 }
 
 class PooledPg implements PgClient {
-    public readonly pool;
-    private readonly isPoolExternal;
+    public data = {};
+    public pool;
+    private isPoolExternal;
     private options;
 
     public constructor({
@@ -154,7 +156,9 @@ class PooledPg implements PgClient {
 class TransactionScope implements Transaction {
     private clientPromise?: Promise<PoolClient>;
     private client?: PoolClient;
+
     public readonly isTransaction = true;
+    public data = {};
 
     public constructor(public pg: PooledPg, private options?: { isolationLevel?: IsolationLevel }) {}
 
