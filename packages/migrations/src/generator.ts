@@ -99,13 +99,13 @@ const createTest = async (directory: string) => {
 };
 
 const testTemplate = (packageName: string) => `import { afterAll, beforeAll, describe, it } from '@jest/globals';
-import { untypeLogger } from '@untype/logger';
+import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { Migrations } from './MigrationRunner';
 
 describe('${packageName} migrations', () => {
-    const logger = new untypeLogger({ level: 'error' });
+    const logger = new Logger({ level: 'error' });
     let container: StartedTestContainer;
     let pg: Pg;
 
@@ -166,20 +166,37 @@ const initialMigration = `await t.sql\`CREATE EXTENSION IF NOT EXISTS "uuid-ossp
         $$ LANGUAGE plpgsql
     \`;`;
 
-const migrationRunner = `import { untypeLogger } from '@untype/logger';
-import { Pg } from '@untype/pg';
+const migrationRunner = `import { Logger, logger } from '@untype/logger';
 import { MigrationRunner } from '@untype/migrations';
+import { Pg } from '@untype/pg';
 
 import { migrations } from './migrations';
 
 export class Migrations {
     private runner;
 
-    public constructor(logger: untypeLogger, pg: Pg) {
+    public constructor(logger: Logger, pg: Pg) {
         this.runner = new MigrationRunner(logger, pg);
     }
 
     public run = () => {
         return this.runner.run(migrations);
     };
-}`;
+
+    public static apply = async () => {
+        const master = process.env.MIGRATIONS_CONNECTION_STRING;
+        if (!master) {
+            throw new Error('MIGRATIONS_CONNECTION_STRING must be set');
+        }
+
+        const pg = new Pg({ master });
+        await new Migrations(logger, pg).run();
+
+        process.exit(0);
+    };
+}
+
+if (require.main === module) {
+    Migrations.apply().catch(() => process.exit(1));
+}
+`;
