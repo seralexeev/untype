@@ -11,6 +11,6 @@
     }
   },
   "dependencies": {
-    "clean-stack": "3.0.1"
+    "clean-stack": "^3.0.1"
   }
 }

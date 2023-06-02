@@ -14,27 +14,26 @@
     }
   },
   "devDependencies": {
-    "@types/big.js": "6.1.6",
-    "@types/pg": "8.10.1",
-    "commander": "9.5.0",
-    "dedent": "0.7.0",
-    "type-fest": "3.11.0"
+    "@types/big.js": "^6.1.6",
+    "@types/pg": "^8.10.1",
+    "commander": "^9.5.0",
+    "dedent": "^0.7.0",
+    "type-fest": "^3.11.1"
   },
   "dependencies": {
-    "@graphile-contrib/pg-many-to-many": "1.0.2",
-    "@graphile-contrib/pg-order-by-related": "1.0.0",
-    "@graphile-contrib/pg-simplify-inflector": "6.1.0",
-    "@graphile/postgis": "0.2.0",
+    "@graphile-contrib/pg-many-to-many": "^1.0.2",
+    "@graphile-contrib/pg-order-by-related": "^1.0.0",
+    "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
     "@untype/core": "workspace:*",
     "@untype/pg": "workspace:*",
-    "big.js": "6.2.1",
-    "change-case": "4.1.2",
-    "graphile-build": "4.13.0",
-    "graphql": "15.8.0",
-    "pg": "8.11.0",
-    "postgraphile": "4.13.0",
-    "postgraphile-core": "4.13.0",
-    "postgraphile-plugin-connection-filter": "2.3.0",
-    "postgraphile-upsert-plugin": "3.2.2"
+    "big.js": "^6.2.1",
+    "change-case": "^4.1.2",
+    "graphile-build": "^4.13.0",
+    "graphql": "^15.8.0",
+    "pg": "^8.11.0",
+    "postgraphile": "^4.13.0",
+    "postgraphile-core": "^4.13.0",
+    "postgraphile-plugin-connection-filter": "^2.3.0",
+    "postgraphile-upsert-plugin": "^3.2.2"
   }
 }

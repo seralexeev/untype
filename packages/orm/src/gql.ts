@@ -1,7 +1,6 @@
 import PgManyToManyPlugin from '@graphile-contrib/pg-many-to-many';
 import PgOrderByRelatedPlugin from '@graphile-contrib/pg-order-by-related';
 import PgSimplifyInflectorPlugin from '@graphile-contrib/pg-simplify-inflector';
-import PostgisPlugin from '@graphile/postgis';
 import { InternalError, UnreachableError } from '@untype/core';
 import { constantCase } from 'change-case';
 import {
@@ -42,7 +41,6 @@ const options: PostGraphileCoreOptions = {
         ConnectionFilterPlugin,
         PgManyToManyPlugin,
         PgSimplifyInflectorPlugin,
-        PostgisPlugin,
         PgMutationUpsertPlugin,
         PgOrderByRelatedPlugin,
     ],

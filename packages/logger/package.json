@@ -13,11 +13,11 @@
   "dependencies": {
     "@untype/core": "workspace:*",
     "@untype/dumper": "workspace:*",
-    "colorette": "2.0.20",
-    "js-yaml": "4.1.0"
+    "colorette": "^2.0.20",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "@types/js-yaml": "4.0.5",
-    "cli-highlight": "2.1.11"
+    "@types/js-yaml": "^4.0.5",
+    "cli-highlight": "^2.1.11"
   }
 }
