@@ -1,4 +1,9 @@
-import { HttpContext } from '.';
+import { IncomingMessage, OutgoingMessage } from 'node:http';
+
+export type HttpContext = {
+    req: IncomingMessage;
+    res: OutgoingMessage;
+};
 
 export abstract class EndpointResponse {
     public abstract write(ctx: HttpContext): Promise<void> | void;

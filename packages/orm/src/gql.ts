@@ -30,6 +30,7 @@ import ConnectionFilterPlugin from 'postgraphile-plugin-connection-filter';
 import { PgMutationUpsertPlugin } from 'postgraphile-upsert-plugin';
 import { NonNullRelationsPlugin } from './plugins/NonNullRelationsPlugin';
 import { PgNumericToBigJsPlugin } from './plugins/PgNumericToBigJsPlugin';
+import PostgisPlugin from '@graphile/postgis';
 
 export type GqlInvoke = <T = unknown>(type: 'query' | 'mutation', name: string, query: object) => Promise<T>;
 export type GqlClient = { gql: GqlInvoke };
@@ -41,6 +42,7 @@ const options: PostGraphileCoreOptions = {
         ConnectionFilterPlugin,
         PgManyToManyPlugin,
         PgSimplifyInflectorPlugin,
+        PostgisPlugin,
         PgMutationUpsertPlugin,
         PgOrderByRelatedPlugin,
     ],

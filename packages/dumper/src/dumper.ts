@@ -68,7 +68,7 @@ export class StdDumper {
     }
 
     protected serializeMap(ctx: DumpContext, obj: Map<unknown, unknown>) {
-        const map: Record<string, DumpedValue> = {};
+        const map: Record<string, unknown> = {};
         for (const [key, value] of obj) {
             const keyStr = String(key);
             map[keyStr] = this.dumpImpl(this.deriveDumpContext(ctx, keyStr), value);
@@ -78,7 +78,7 @@ export class StdDumper {
     }
 
     protected serializeSet(ctx: DumpContext, obj: Set<unknown>) {
-        const set: DumpedValue[] = [];
+        const set: unknown[] = [];
         for (const value of obj) {
             set.push(this.dumpImpl(ctx, value));
         }
@@ -117,6 +117,10 @@ export class StdDumper {
         return `[object Symbol(${String(obj)})]`;
     }
 
+    protected serializeBuffer(ctx: DumpContext, obj: unknown) {
+        return '[object Buffer]';
+    }
+
     // eslint-disable-next-line @typescript-eslint/ban-types
     protected serializeFunction(ctx: DumpContext, obj: Function) {
         // we ignore functions
@@ -128,7 +132,7 @@ export class StdDumper {
         return obj.toISOString();
     }
 
-    protected dumpImpl(ctx: DumpContext, obj: unknown): DumpedValue {
+    protected dumpImpl(ctx: DumpContext, obj: unknown): unknown {
         if (ctx.seen.has(obj)) {
             return '[Circular]';
         }
@@ -179,6 +183,10 @@ export class StdDumper {
             }
         }
 
+        if (obj instanceof Buffer) {
+            return this.serializeBuffer(ctx, obj);
+        }
+
         if (ArrayBuffer.isView(obj)) {
             return this.serializeArrayBufferView(ctx, obj);
         }
@@ -219,7 +227,7 @@ export class StdDumper {
     }
 
     protected dumpObject(ctx: DumpContext, obj: unknown) {
-        const record: Record<string, DumpedValue> = {};
+        const record: Record<string, unknown> = {};
         for (const key of this.findObjectKeys(ctx, obj)) {
             if (!this.isFieldSerializable(ctx, key)) {
                 continue;
@@ -231,7 +239,7 @@ export class StdDumper {
             }
 
             try {
-                record[key] = this.serializeKey(ctx, obj, key);
+                record[key] = this.serializeKey(ctx, obj as Record<string, unknown>, key);
             } catch (error) {
                 record[key] = '[Thrown an error when dumping value]';
             }
@@ -240,7 +248,7 @@ export class StdDumper {
         return record;
     }
 
-    protected serializeKey(ctx: DumpContext, obj: unknown, key: string) {
+    protected serializeKey(ctx: DumpContext, obj: Record<string, unknown>, key: string) {
         return this.dumpImpl(this.deriveDumpContext(ctx, key), (obj as Record<string, unknown>)[key]);
     }
 
@@ -250,5 +258,3 @@ export class StdDumper {
 }
 
 export type DumpContext = { path: string; seen: Set<unknown> };
-
-type DumpedValue = unknown;

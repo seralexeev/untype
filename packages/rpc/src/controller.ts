@@ -68,18 +68,18 @@ export const makeControllerHandlers = (options: ControllerOptions) => {
                 continue;
             }
 
-            const { Invoker, config, httpMethod, path } = result;
+            const { Executor, config, httpMethod, path } = result;
 
-            // Invoker can be a class or an instance
+            // Executor can be a class or an instance
             // - class if use endpoint factory
-            // - instance when we use Invoker inheritance and protected methods
-            const invoker = typeof Invoker === 'function' ? container.resolve(Invoker) : Invoker;
+            // - instance when we use Executor inheritance and protected methods
+            const executor = typeof Executor === 'function' ? container.resolve(Executor) : Executor;
 
             const handler: HandlerFunction = async (args) => {
                 // auth is being called even if anonymous is true
-                // it allows us to use optional auth in some cases
-                const auth = await invoker.auth(args);
-                if (!config.anonymous && !auth) {
+                // it allows us to use optional user in some cases
+                const user = await executor.auth(args, config);
+                if (!config.anonymous && !user) {
                     await onUnauthorized(args);
                 }
 
@@ -91,17 +91,17 @@ export const makeControllerHandlers = (options: ControllerOptions) => {
                     input = inputParsed.success ? inputParsed.data : await onInputValidationError(inputParsed.error, args);
                 }
 
-                const result = await invoker.invoke({
+                const result = await executor.invoke({
                     resolve: (ctx) => {
                         return config.resolve({
-                            ctx: ctx ? { ...ctx, auth } : { auth },
+                            ctx: ctx ? { ...ctx, user } : { user },
                             input,
                             query,
                             params,
                         });
                     },
                     input,
-                    auth,
+                    user,
                     req,
                     res,
                     config,
@@ -119,7 +119,7 @@ export const makeControllerHandlers = (options: ControllerOptions) => {
                     output = outputParsed.success ? outputParsed.data : await onOutputValidationError(outputParsed.error, args);
                 }
 
-                return invoker.onRawOutput(output);
+                return executor.onRawOutput(output);
             };
 
             const collection = (endpoints[path] ??= {});
@@ -197,15 +197,15 @@ const introspectClassKey = ([name, value]: [name: string, value: unknown]) => {
                 });
             }
 
-            return { path: maybePath, httpMethod: httpMethodParseResult.data, config: value.config, Invoker: value.Invoker };
+            return { path: maybePath, httpMethod: httpMethodParseResult.data, config: value.config, Executor: value.Executor };
         }
 
-        return { path: methodOrPath, httpMethod: 'GET' as const, config: value.config, Invoker: value.Invoker };
+        return { path: methodOrPath, httpMethod: 'GET' as const, config: value.config, Executor: value.Executor };
     }
 
     if (path.startsWith('/')) {
         throw new InternalError(`RPC endpoint "${path}" should not start with a leading slash`);
     }
 
-    return { path: `/${path}`, httpMethod: 'POST' as const, config: value.config, Invoker: value.Invoker };
+    return { path: `/${path}`, httpMethod: 'POST' as const, config: value.config, Executor: value.Executor };
 };

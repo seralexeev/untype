@@ -1,37 +1,32 @@
 import { Class, Merge, OmitNever } from '@untype/core';
 import { Jsonify } from 'type-fest';
 import { z } from 'zod';
-import { ControllerInvoker } from './invoker';
+import { EndpointExecutor } from './executor';
 
-type InvokerType = ControllerInvoker<any, any> | Class<ControllerInvoker<any, any>>;
+type ExecutorType = EndpointExecutor<any, any, any, any, any> | Class<EndpointExecutor<any, any, any, any, any>>;
 
 export class Endpoint<TInput, TOutput> {
     public constructor(
         public type: 'RPC' | 'REST',
-        public Invoker: InvokerType,
-        public config: {
-            input?: TInput;
-            output?: z.ZodType<TOutput>;
-            anonymous?: boolean;
-            resolve: (args: any) => unknown;
-        },
+        public Executor: ExecutorType,
+        public config: EndpointConfig<any, any, TInput, TOutput, any>,
     ) {}
 }
 
 type InferZod<T> = T extends z.ZodType ? z.infer<T> : never;
 
-type ResolveCallback<TContext, TAuth, TInput, TOutput, TAnonymous extends true | undefined> = (args: {
+type ResolveCallback<TContext, TUser, TInput, TOutput, TAnonymous extends true | undefined> = (args: {
     input: TInput;
-    ctx: TContext & { auth: undefined extends TAnonymous ? TAuth | null : TAuth };
+    ctx: TContext & { auth: undefined extends TAnonymous ? TUser | null : TUser };
     params: Record<string, string>;
     query: Record<string, string>;
 }) => Promise<TOutput> | TOutput;
 
-export type EndpointConfig<TContext, TAuth, TInput, TOutput, TAnonymous extends true | undefined> = {
+export type EndpointConfig<TContext, TUser, TInput, TOutput, TAnonymous extends true | undefined> = {
     input?: TInput extends z.ZodType ? TInput : never;
     output?: z.ZodType<TOutput>;
     anonymous?: TAnonymous;
-    resolve: ResolveCallback<TContext, TAuth, InferZod<TInput>, TOutput, TAnonymous>;
+    resolve: ResolveCallback<TContext, TUser, InferZod<TInput>, TOutput, TAnonymous>;
 };
 
 export type RpcApi<T> = Merge<

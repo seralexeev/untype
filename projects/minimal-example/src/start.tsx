@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 
-import { ContentResponse, ControllerInvoker, EndpointResponse, HttpContext, InvokeArgs, RpcApi } from '@untype/rpc';
-import { createControllers } from '@untype/rpc-express';
+import { ContentResponse, EndpointResponse, HttpContext, RpcApi } from '@untype/rpc';
+import { ExpressExecutor, createControllers } from '@untype/rpc-express';
 import express from 'express';
 import React, { ReactNode, isValidElement } from 'react';
 import { renderToPipeableStream } from 'react-dom/server';
@@ -11,7 +11,7 @@ import z from 'zod';
 type User = { id: string };
 type Context = { userAgent: string };
 
-class HelloController extends ControllerInvoker<Context, User> {
+class HelloController extends ExpressExecutor<Context, User> {
     public ['GET /'] = this.rest({
         anonymous: true,
         resolve: ({ ctx }) => (
@@ -76,7 +76,7 @@ class HelloController extends ControllerInvoker<Context, User> {
         return null;
     };
 
-    public override invoke = async ({ resolve, req }: InvokeArgs<Context, User>) => {
+    public override invoke = async ({ resolve, req }: typeof this.types.invoke) => {
         const ctx = {
             userAgent: req.headers['user-agent'] as string,
         };

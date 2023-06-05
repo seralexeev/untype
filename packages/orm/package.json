@@ -1,6 +1,6 @@
 {
   "name": "@untype/orm",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
@@ -24,6 +24,7 @@
     "@graphile-contrib/pg-many-to-many": "^1.0.2",
     "@graphile-contrib/pg-order-by-related": "^1.0.0",
     "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
+    "@graphile/postgis": "^0.2.0-0",
     "@untype/core": "workspace:*",
     "@untype/pg": "workspace:*",
     "big.js": "^6.2.1",

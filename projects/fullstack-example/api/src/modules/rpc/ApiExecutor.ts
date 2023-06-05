@@ -1,6 +1,5 @@
-import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
-import { ControllerInvoker, InvokeArgs } from '@untype/rpc';
+import { ExpressExecutor } from '@untype/rpc-express';
 import { Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import { singleton } from 'tsyringe';
@@ -10,10 +9,10 @@ import { ApiContext } from './ApiContext';
 import { ApiUser } from './ApiUser';
 
 @singleton()
-export class ApiInvoker extends ControllerInvoker<ApiContext, ApiUser> {
+export class ApiExecutor extends ExpressExecutor<ApiContext, ApiUser> {
     private authClient;
 
-    public constructor(private pg: Pg, private config: Config, private authService: AuthService, private logger: Logger) {
+    public constructor(private pg: Pg, private config: Config, private authService: AuthService) {
         super();
 
         this.authClient = new OAuth2Client({
@@ -23,13 +22,13 @@ export class ApiInvoker extends ControllerInvoker<ApiContext, ApiUser> {
         });
     }
 
-    public override invoke = async ({ resolve, res, req }: InvokeArgs<ApiContext, ApiUser>) => {
+    public override invoke = async ({ resolve, res, req }: typeof this.types.invoke) => {
         return this.pg.transaction(async (t) => {
             return resolve({ t, res: res as any as Response, req: req as any as Request });
         });
     };
 
-    public override auth = async (ctx: { req: Request; res: Response }) => {
+    public override auth = async (ctx: typeof this.types.auth) => {
         const email = await this.getEmail(ctx);
         const user = this.authService.getUser(email);
         if (!user) {
@@ -39,7 +38,7 @@ export class ApiInvoker extends ControllerInvoker<ApiContext, ApiUser> {
         return user;
     };
 
-    private getEmail = async ({ req, res }: { req: Request; res: Response }) => {
+    private getEmail = async ({ req, res }: typeof this.types.auth) => {
         const { access_token, refresh_token } = req.cookies;
         if (typeof access_token !== 'string' || typeof refresh_token !== 'string') {
             return null;

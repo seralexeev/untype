@@ -2,10 +2,11 @@ import 'reflect-metadata';
 import 'source-map-support/register';
 
 import { describe, expect, it } from '@jest/globals';
-import { SimpleInvoker, createEndpointFactory } from '@untype/rpc';
+import { createEndpointFactory } from '@untype/rpc';
 import supertest from 'supertest';
 import { container } from 'tsyringe';
 
+import { ExpressExecutor } from '.';
 import { createServer } from './middleware';
 
 const makeRequest = (Controller: Record<string, unknown>) => {
@@ -19,7 +20,13 @@ const makeRequest = (Controller: Record<string, unknown>) => {
 };
 
 describe('Express Middleware', () => {
-    const { rest } = createEndpointFactory(class extends SimpleInvoker {});
+    const { rest } = createEndpointFactory(
+        class extends ExpressExecutor<any, any, any> {
+            public override invoke = async ({ resolve }: typeof this.types.invoke) => {
+                return resolve({});
+            };
+        },
+    );
 
     it.each(['GET', 'POST', 'PUT', 'DELETE'] as const)('$1 /value returns expected', async (method) => {
         const request = makeRequest({
@@ -53,7 +60,7 @@ describe('Express Middleware', () => {
         const { statusCode, body } = await makeRequest({
             ['GET /users/:id/:data']: rest({
                 anonymous: true,
-                resolve: ({ params }) => params,
+                resolve: ({ params }: any) => params,
             }),
         })
             .get('/users/1/tasks')

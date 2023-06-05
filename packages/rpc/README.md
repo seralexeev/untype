@@ -11,12 +11,12 @@ Here is a minimal example illustrating a server with a single endpoint:
 ```typescript
 import 'reflect-metadata';
 
-import { SimpleInvoker } from '@untype/rpc';
+import { SimpleExecutor } from '@untype/rpc';
 import { createControllers } from '@untype/rpc-express';
 import express from 'express';
 import { container } from 'tsyringe';
 
-class HelloController extends SimpleInvoker {
+class HelloController extends SimpleExecutor {
     public ['GET /'] = this.rest({
         anonymous: true,
         resolve: () => 'Hello world',
@@ -33,7 +33,7 @@ The first part of the code is importing the necessary dependencies for the serve
 ```typescript
 import 'reflect-metadata';
 
-import { SimpleInvoker } from '@untype/rpc';
+import { SimpleExecutor } from '@untype/rpc';
 import { createControllers } from '@untype/rpc-express';
 import express from 'express';
 import { container } from 'tsyringe';
@@ -46,7 +46,7 @@ You can use any http framework with `@untype`. However, this example uses `expre
 Finally, `container` from `tsyringe` is imported to provide Dependency Injection (DI) capabilities.
 
 ```typescript
-class HelloController extends SimpleInvoker {
+class HelloController extends SimpleExecutor {
     public ['GET /'] = this.rest({
         anonymous: true,
         resolve: () => 'Hello world',
@@ -54,9 +54,9 @@ class HelloController extends SimpleInvoker {
 }
 ```
 
-A new class, `HelloController`, is created extending the `SimpleInvoker` class. This controller class defines one HTTP GET endpoint at the root path ("/").
+A new class, `HelloController`, is created extending the `SimpleExecutor` class. This controller class defines one HTTP GET endpoint at the root path ("/").
 
-The `rest` method from `SimpleInvoker` is used to define this endpoint.
+The `rest` method from `SimpleExecutor` is used to define this endpoint.
 
 The `anonymous` property is set to `true`, allowing the endpoint to be accessed without authentication.
 
@@ -74,21 +74,21 @@ The `controllers` object passed to `createControllers` should map controller nam
 
 ### Authentication
 
-To verify user authentication, you can override the `auth` method of the `Invoker` class. This method receives `HttpContext` and should return some value or null. The `Invoker`'s authentication object type can be specified by providing a generic argument.
+To verify user authentication, you can override the `auth` method of the `Executor` class. This method receives `HttpContext` and should return some value or null. The `Executor`'s authentication object type can be specified by providing a generic argument.
 
 ```diff
  import 'reflect-metadata';
 
--import { SimpleInvoker } from '@untype/rpc';
-+import { HttpContext, SimpleInvoker } from '@untype/rpc';
+-import { SimpleExecutor } from '@untype/rpc';
++import { HttpContext, SimpleExecutor } from '@untype/rpc';
  import { createControllers } from '@untype/rpc-express';
  import express from 'express';
  import { container } from 'tsyringe';
 
--class HelloController extends SimpleInvoker {
+-class HelloController extends SimpleExecutor {
 +type User = { id: string };
 +
-+class HelloController extends SimpleInvoker<User> {
++class HelloController extends SimpleExecutor<User> {
      public ['GET /'] = this.rest({
          anonymous: true,
 -        resolve: () => 'Hello world',
@@ -115,13 +115,13 @@ The library verifies user authentication by invoking the `auth` method. If it re
 
 ### Context
 
-The context object is forwarded to the `resolve` callback. It contains the `auth` field and can be extended with custom fields. To manually specify context, use the `ControllerInvoker` class:
+The context object is forwarded to the `resolve` callback. It contains the `auth` field and can be extended with custom fields. To manually specify context, use the `ControllerExecutor` class:
 
 ```diff
  import 'reflect-metadata';
 
--import { HttpContext, SimpleInvoker } from '@untype/rpc';
-+import { ControllerInvoker, HttpContext, InvokeArgs } from '@untype/rpc';
+-import { HttpContext, SimpleExecutor } from '@untype/rpc';
++import { ControllerExecutor, HttpContext, InvokeArgs } from '@untype/rpc';
  import { createControllers } from '@untype/rpc-express';
  import express from 'express';
  import { container } from 'tsyringe';
@@ -129,8 +129,8 @@ The context object is forwarded to the `resolve` callback. It contains the `auth
  type User = { id: string };
 +type Context = { userAgent: string };
 
--class HelloController extends SimpleInvoker<User> {
-+class HelloController extends ControllerInvoker<Context, User> {
+-class HelloController extends SimpleExecutor<User> {
++class HelloController extends ControllerExecutor<Context, User> {
      public ['GET /'] = this.rest({
          anonymous: true,
 -        resolve: ({ ctx }) => `Hello ${ctx.auth?.id ?? 'world'}`,
@@ -168,8 +168,8 @@ Endpoints can return different content types. To do this, use existing types or 
 ```diff
  import 'reflect-metadata';
 
--import { ControllerInvoker, HttpContext, InvokeArgs } from '@untype/rpc';
-+import { ContentResponse, ControllerInvoker, HttpContext, InvokeArgs } from '@untype/rpc';
+-import { ControllerExecutor, HttpContext, InvokeArgs } from '@untype/rpc';
++import { ContentResponse, ControllerExecutor, HttpContext, InvokeArgs } from '@untype/rpc';
  import { createControllers } from '@untype/rpc-express';
  import express from 'express';
  import { container } from 'tsyringe';
@@ -177,7 +177,7 @@ Endpoints can return different content types. To do this, use existing types or 
  type User = { id: string };
  type Context = { userAgent: string };
 
- class HelloController extends ControllerInvoker<Context, User> {
+ class HelloController extends ControllerExecutor<Context, User> {
      public ['GET /'] = this.rest({
          anonymous: true,
 -        resolve: ({ ctx }) => `Hello ${ctx.auth?.id ?? 'world'} from ${ctx.userAgent}`,
@@ -227,8 +227,8 @@ Instead of creating html by interpolating strings we can use React to render it.
 ```diff
  import 'reflect-metadata';
 
--import { ContentResponse, ControllerInvoker, HttpContext, InvokeArgs } from '@untype/rpc';
-+import { ContentResponse, ControllerInvoker, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
+-import { ContentResponse, ControllerExecutor, HttpContext, InvokeArgs } from '@untype/rpc';
++import { ContentResponse, ControllerExecutor, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
  import { createControllers } from '@untype/rpc-express';
  import express from 'express';
 +import { ReactNode } from 'react';
@@ -238,7 +238,7 @@ Instead of creating html by interpolating strings we can use React to render it.
  type User = { id: string };
  type Context = { userAgent: string };
 
- class HelloController extends ControllerInvoker<Context, User> {
+ class HelloController extends ControllerExecutor<Context, User> {
      public ['GET /'] = this.rest({
          anonymous: true,
          resolve: ({ ctx }) => ContentResponse.html`
@@ -298,8 +298,8 @@ If we return instance of the class from the endpoint the server doesn't know any
 ```diff
  import 'reflect-metadata';
 
--import { ContentResponse, ControllerInvoker, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
-+import { ControllerInvoker, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
+-import { ContentResponse, ControllerExecutor, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
++import { ControllerExecutor, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
  import { createControllers } from '@untype/rpc-express';
  import express from 'express';
 -import { ReactNode } from 'react';
@@ -310,7 +310,7 @@ If we return instance of the class from the endpoint the server doesn't know any
  type User = { id: string };
  type Context = { userAgent: string };
 
- class HelloController extends ControllerInvoker<Context, User> {
+ class HelloController extends ControllerExecutor<Context, User> {
      public ['GET /'] = this.rest({
          anonymous: true,
 -        resolve: ({ ctx }) => ContentResponse.html`
@@ -385,8 +385,8 @@ Now let's add some interaction to our page. To do that we can introduce a new en
 ```diff
  import 'reflect-metadata';
 
--import { ControllerInvoker, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
-+import { ContentResponse, ControllerInvoker, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
+-import { ControllerExecutor, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
++import { ContentResponse, ControllerExecutor, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
  import { createControllers } from '@untype/rpc-express';
  import express from 'express';
  import React, { ReactNode, isValidElement } from 'react';
@@ -396,7 +396,7 @@ Now let's add some interaction to our page. To do that we can introduce a new en
  type User = { id: string };
  type Context = { userAgent: string };
 
- class HelloController extends ControllerInvoker<Context, User> {
+ class HelloController extends ControllerExecutor<Context, User> {
      public ['GET /'] = this.rest({
          anonymous: true,
          resolve: ({ ctx }) => (
@@ -471,7 +471,7 @@ Now we can add a form with to post the data to the server:
 ```diff
  import 'reflect-metadata';
 
- import { ContentResponse, ControllerInvoker, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
+ import { ContentResponse, ControllerExecutor, EndpointResponse, HttpContext, InvokeArgs } from '@untype/rpc';
  import { createControllers } from '@untype/rpc-express';
  import express from 'express';
  import React, { ReactNode, isValidElement } from 'react';
@@ -482,7 +482,7 @@ Now we can add a form with to post the data to the server:
  type User = { id: string };
  type Context = { userAgent: string };
 
- class HelloController extends ControllerInvoker<Context, User> {
+ class HelloController extends ControllerExecutor<Context, User> {
      public ['GET /'] = this.rest({
          anonymous: true,
          resolve: ({ ctx }) => (

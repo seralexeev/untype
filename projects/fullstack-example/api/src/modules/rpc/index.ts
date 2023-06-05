@@ -1,4 +1,4 @@
 import { createEndpointFactory } from '@untype/rpc';
-import { ApiInvoker } from './ApiInvoker';
+import { ApiExecutor } from './ApiExecutor';
 
-export const { rpc, rest } = createEndpointFactory(ApiInvoker);
+export const { rpc, rest } = createEndpointFactory(ApiExecutor);
