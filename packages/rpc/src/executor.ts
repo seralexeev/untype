@@ -3,7 +3,7 @@ import { IncomingMessage, OutgoingMessage } from 'node:http';
 import { Endpoint, EndpointConfig } from './endpoint';
 import { EndpointResponse, JsonResponse } from './response';
 
-export type InvokeArgs<TRequest, TResponse, TContext, TUser, TConfig> = {
+type InvokeArgs<TRequest, TResponse, TContext, TUser, TConfig> = {
     resolve: (ctx: Omit<TContext, 'auth'>) => unknown;
     input: unknown;
     user: TUser;
@@ -44,8 +44,8 @@ export abstract class EndpointExecutor<
         config: TConfig & EndpointConfig<TContext, TUser, TInput, TOutput, TAnonymous>,
     ): Endpoint<TInput, TOutput> => new Endpoint<TInput, TOutput>('REST', this, config);
 
-    public async onRawOutput(output: unknown): Promise<EndpointResponse> {
-        return new JsonResponse({ data: output });
+    public async onRawOutput(data: unknown): Promise<EndpointResponse> {
+        return new JsonResponse({ data });
     }
 }
 

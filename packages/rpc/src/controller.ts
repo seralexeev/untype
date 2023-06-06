@@ -197,15 +197,30 @@ const introspectClassKey = ([name, value]: [name: string, value: unknown]) => {
                 });
             }
 
-            return { path: maybePath, httpMethod: httpMethodParseResult.data, config: value.config, Executor: value.Executor };
+            return {
+                path: maybePath,
+                httpMethod: httpMethodParseResult.data,
+                config: value.config,
+                Executor: value.Executor,
+            };
         }
 
-        return { path: methodOrPath, httpMethod: 'GET' as const, config: value.config, Executor: value.Executor };
+        return {
+            path: methodOrPath,
+            httpMethod: 'GET' as const,
+            config: value.config,
+            Executor: value.Executor,
+        };
     }
 
     if (path.startsWith('/')) {
         throw new InternalError(`RPC endpoint "${path}" should not start with a leading slash`);
     }
 
-    return { path: `/${path}`, httpMethod: 'POST' as const, config: value.config, Executor: value.Executor };
+    return {
+        path: `/${path}`,
+        httpMethod: 'POST' as const,
+        config: value.config,
+        Executor: value.Executor,
+    };
 };

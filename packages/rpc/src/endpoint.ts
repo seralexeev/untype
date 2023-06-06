@@ -13,8 +13,6 @@ export class Endpoint<TInput, TOutput> {
     ) {}
 }
 
-type InferZod<T> = T extends z.ZodType ? z.infer<T> : never;
-
 type ResolveCallback<TContext, TUser, TInput, TOutput, TAnonymous extends true | undefined> = (args: {
     input: TInput;
     ctx: TContext & { auth: undefined extends TAnonymous ? TUser | null : TUser };
@@ -26,12 +24,10 @@ export type EndpointConfig<TContext, TUser, TInput, TOutput, TAnonymous extends 
     input?: TInput extends z.ZodType ? TInput : never;
     output?: z.ZodType<TOutput>;
     anonymous?: TAnonymous;
-    resolve: ResolveCallback<TContext, TUser, InferZod<TInput>, TOutput, TAnonymous>;
+    resolve: ResolveCallback<TContext, TUser, TInput extends z.ZodType ? z.infer<TInput> : never, TOutput, TAnonymous>;
 };
 
-export type RpcApi<T> = Merge<
-    { [K in keyof T]: T[K] extends Class<any> ? RpcControllerApi<InstanceType<T[K]>> : never }[keyof T]
->;
+export type RpcApi<T> = Merge<{ [K in keyof T]: T[K] extends Class<infer Q> ? RpcControllerApi<Q> : never }[keyof T]>;
 
 type RpcControllerApi<T> = OmitNever<{
     [K in keyof T]: T[K] extends Endpoint<infer TInput, infer TOutput>
