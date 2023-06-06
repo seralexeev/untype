@@ -15,7 +15,7 @@ export class Endpoint<TInput, TOutput> {
 
 type ResolveCallback<TRequest, TResponse, TContext, TUser, TInput, TOutput, TAnonymous extends true | undefined> = (args: {
     input: TInput;
-    ctx: TContext & { auth: undefined extends TAnonymous ? TUser | null : TUser };
+    ctx: TContext & { user: undefined extends TAnonymous ? TUser : TUser | null };
     params: Record<string, string>;
     query: Record<string, string>;
     req: TRequest;

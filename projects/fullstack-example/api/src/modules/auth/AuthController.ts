@@ -48,7 +48,7 @@ export class AuthController {
     public ['auth/profile'] = rpc({
         resolve: async ({ ctx }) => {
             const profile = await e.Users.findByPkOrError(ctx.t, {
-                pk: { id: ctx.auth.id },
+                pk: { id: ctx.user.id },
                 selector: {
                     id: true,
                     email: true,

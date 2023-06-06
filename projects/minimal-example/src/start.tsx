@@ -22,7 +22,7 @@ class HelloController extends ExpressExecutor<Context, User> {
                     <title>Hello from React</title>
                 </head>
                 <body>
-                    Hello {ctx.auth?.id ?? 'world'} from {ctx.userAgent}!
+                    Hello {ctx.user?.id ?? 'world'} from {ctx.userAgent}!
                     <form>
                         <label htmlFor='name'>Email</label>
                         <input type='text' name='name' id='name' />

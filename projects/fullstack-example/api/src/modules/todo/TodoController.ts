@@ -17,7 +17,7 @@ export class TodoController {
             return e.Todos.findAndCount(ctx.t, {
                 filter: {
                     text: { includesInsensitive: input.search },
-                    userId: { equalTo: ctx.auth.id },
+                    userId: { equalTo: ctx.user.id },
                 },
                 selector: {
                     id: true,
@@ -62,7 +62,7 @@ export class TodoController {
             return e.Todos.upsert(ctx.t, {
                 where: { id: input.id },
                 item: {
-                    userId: ctx.auth.id,
+                    userId: ctx.user.id,
                     ...input,
                 },
                 selector: ['id'],
@@ -77,7 +77,7 @@ export class TodoController {
                 selector: ['id'],
                 filter: {
                     id: { equalTo: input.id },
-                    userId: { equalTo: ctx.auth.id },
+                    userId: { equalTo: ctx.user.id },
                 },
             });
 
