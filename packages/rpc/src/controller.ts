@@ -98,6 +98,8 @@ export const makeControllerHandlers = (options: ControllerOptions) => {
                             input,
                             query,
                             params,
+                            req,
+                            res,
                         });
                     },
                     input,

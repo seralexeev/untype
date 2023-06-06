@@ -9,22 +9,32 @@ export class Endpoint<TInput, TOutput> {
     public constructor(
         public type: 'RPC' | 'REST',
         public Executor: ExecutorType,
-        public config: EndpointConfig<any, any, TInput, TOutput, any>,
+        public config: EndpointConfig<any, any, any, any, TInput, TOutput, any>,
     ) {}
 }
 
-type ResolveCallback<TContext, TUser, TInput, TOutput, TAnonymous extends true | undefined> = (args: {
+type ResolveCallback<TRequest, TResponse, TContext, TUser, TInput, TOutput, TAnonymous extends true | undefined> = (args: {
     input: TInput;
     ctx: TContext & { auth: undefined extends TAnonymous ? TUser | null : TUser };
     params: Record<string, string>;
     query: Record<string, string>;
+    req: TRequest;
+    res: TResponse;
 }) => Promise<TOutput> | TOutput;
 
-export type EndpointConfig<TContext, TUser, TInput, TOutput, TAnonymous extends true | undefined> = {
+export type EndpointConfig<TRequest, TResponse, TContext, TUser, TInput, TOutput, TAnonymous extends true | undefined> = {
     input?: TInput extends z.ZodType ? TInput : never;
     output?: z.ZodType<TOutput>;
     anonymous?: TAnonymous;
-    resolve: ResolveCallback<TContext, TUser, TInput extends z.ZodType ? z.infer<TInput> : never, TOutput, TAnonymous>;
+    resolve: ResolveCallback<
+        TRequest,
+        TResponse,
+        TContext,
+        TUser,
+        TInput extends z.ZodType ? z.infer<TInput> : never,
+        TOutput,
+        TAnonymous
+    >;
 };
 
 export type RpcApi<T> = Merge<{ [K in keyof T]: T[K] extends Class<infer Q> ? RpcControllerApi<Q> : never }[keyof T]>;

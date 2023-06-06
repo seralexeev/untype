@@ -9,7 +9,7 @@ type InvokeArgs<TRequest, TResponse, TContext, TUser, TConfig> = {
     user: TUser;
     req: TRequest;
     res: TResponse;
-    config: TConfig & EndpointConfig<any, any, any, any, any>;
+    config: TConfig & EndpointConfig<any, any, any, any, any, any, any>;
     endpoint: string;
 };
 
@@ -31,17 +31,17 @@ export abstract class EndpointExecutor<
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ctx: { req: TRequest; res: TResponse },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        config: TConfig & EndpointConfig<any, any, any, any, any>,
+        config: TConfig & EndpointConfig<any, any, any, any, any, any, any>,
     ): Promise<TUser | null> {
         return null;
     }
 
     protected rpc = <TInput, TOutput, TAnonymous extends true | undefined>(
-        config: TConfig & EndpointConfig<TContext, TUser, TInput, TOutput, TAnonymous>,
+        config: TConfig & EndpointConfig<TRequest, TResponse, TContext, TUser, TInput, TOutput, TAnonymous>,
     ): Endpoint<TInput, TOutput> => new Endpoint<TInput, TOutput>('RPC', this, config);
 
     protected rest = <TInput, TOutput, TAnonymous extends true | undefined>(
-        config: TConfig & EndpointConfig<TContext, TUser, TInput, TOutput, TAnonymous>,
+        config: TConfig & EndpointConfig<TRequest, TResponse, TContext, TUser, TInput, TOutput, TAnonymous>,
     ): Endpoint<TInput, TOutput> => new Endpoint<TInput, TOutput>('REST', this, config);
 
     public async onRawOutput(data: unknown): Promise<EndpointResponse> {
@@ -59,11 +59,11 @@ export const createEndpointFactory = <
     Executor: Class<EndpointExecutor<TRequest, TResponse, TContext, TUser, TConfig>>,
 ) => {
     const rpc = <TInput, TOutput, TAnonymous extends true | undefined>(
-        config: TConfig & EndpointConfig<TContext, TUser, TInput, TOutput, TAnonymous>,
+        config: TConfig & EndpointConfig<TRequest, TResponse, TContext, TUser, TInput, TOutput, TAnonymous>,
     ) => new Endpoint<TInput, TOutput>('RPC', Executor, config);
 
     const rest = <TInput, TOutput, TAnonymous extends true | undefined>(
-        config: TConfig & EndpointConfig<TContext, TUser, TInput, TOutput, TAnonymous>,
+        config: TConfig & EndpointConfig<TRequest, TResponse, TContext, TUser, TInput, TOutput, TAnonymous>,
     ) => new Endpoint<TInput, TOutput>('REST', Executor, config);
 
     return { rpc, rest };
