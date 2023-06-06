@@ -1,14 +1,10 @@
 import { LoggerType } from '@untype/core';
 import { Pg, Transaction, raw } from '@untype/pg';
-
-import { Migration } from './types';
-
-export type MigrationRow = { id: number; name: string; file_name: string; created_at: Date };
+import { Migration, MigrationRow } from './types';
 
 const PG_MIGRATE_LOCK_ID = 27031991;
 
-const formatMigration = (migration: { id: number; name: string }): string =>
-    `Migration(${migration.id}, ${JSON.stringify(migration.name)})`;
+const formatMigration = (migration: { id: number; name: string }): string => `Migration(${migration.id}, ${migration.name})`;
 
 export class MigrationRunner {
     public constructor(private logger: LoggerType, private pg: Pg) {}

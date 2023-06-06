@@ -2269,7 +2269,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@untype/geo@workspace:packages/geo"
   dependencies:
-    geojson-validation: ^1.0.2
     zod: ^3.21.4
   languageName: unknown
   linkType: soft
@@ -5196,15 +5195,6 @@ __metadata:
   version: 1.0.0-beta.2
   resolution: "gensync@npm:1.0.0-beta.2"
   checksum: a7437e58c6be12aa6c90f7730eac7fa9833dc78872b4ad2963d2031b00a3367a93f98aec75f9aaac7220848e4026d67a8655e870b24f20a543d103c0d65952ec
-  languageName: node
-  linkType: hard
-
-"geojson-validation@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "geojson-validation@npm:1.0.2"
-  bin:
-    gjv: bin/gjv
-  checksum: cb924cda1483862f297068c6403a6288e3978048e240c1e6b93d3a406243389eacb8675a4ae766a36387218670470192fe86d4ebf961741ff87e6141831e36f1
   languageName: node
   linkType: hard
 
