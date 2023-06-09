@@ -8,7 +8,7 @@ import { EndpointResponse } from './response';
 type HandlerArgs = {
     req: IncomingMessage;
     res: ServerResponse;
-    input: unknown;
+    input?: unknown;
     params: Record<string, string>;
     query: Record<string, string>;
 };
