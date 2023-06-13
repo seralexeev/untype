@@ -1,10 +1,8 @@
 import { LoggerType } from '@untype/core';
-import { Pg, Transaction, raw } from '@untype/pg';
+import { Pg, PgConnection, Transaction, raw } from '@untype/pg';
 import { Migration, MigrationRow } from './types';
 
 const PG_MIGRATE_LOCK_ID = 27031991;
-
-const formatMigration = (migration: { id: number; name: string }): string => `Migration(${migration.id}, ${migration.name})`;
 
 export class MigrationRunner {
     public constructor(private logger: LoggerType, private pg: Pg) {}
@@ -42,31 +40,6 @@ export class MigrationRunner {
                     this.logger.info('Applied migrations:', appliedMigrations);
                 } else {
                     this.logger.info('No migrations have been applied');
-                }
-
-                for (let i = 0; i < appliedMigrations.length; i++) {
-                    const appliedMigration = appliedMigrations[i];
-                    const migration = allMigrations[i];
-                    if (!appliedMigration) {
-                        throw new Error('Unexpected undefined in applied migrations');
-                    }
-                    if (!migration) {
-                        throw new Error(`Applied migration ${formatMigration(appliedMigration)} missing from source`);
-                    }
-                    if (appliedMigration.id !== migration.id) {
-                        throw new Error(
-                            `Migration #${i} expected to be ${formatMigration(appliedMigration)}, got ${formatMigration(
-                                migration,
-                            )}`,
-                        );
-                    }
-                    if (appliedMigration.name !== migration.name) {
-                        throw new Error(
-                            `Migration #${i} name changed, got ${formatMigration(migration)}, expected ${formatMigration(
-                                appliedMigration,
-                            )}`,
-                        );
-                    }
                 }
 
                 let pendingMigrations = allMigrations;
@@ -109,9 +82,10 @@ export class MigrationRunner {
                 try {
                     this.logger.info(`Applying migration ${migrationName}`);
                     await migration.apply(t, { pg: this.pg });
-                    await t.sql`INSERT INTO "${raw(this.migrationsTableName)}" ("id", "name") VALUES (${migration.id}, ${
-                        migration.name
-                    })`;
+                    await t.sql`
+                        INSERT INTO "${raw(this.migrationsTableName)}" (id, name)
+                        VALUES (${migration.id}, ${migration.name})
+                    `;
                 } catch (error) {
                     this.logger.error(`Unable to apply migration ${migrationName}`, error);
                     throw error;
@@ -120,16 +94,19 @@ export class MigrationRunner {
         }
     };
 
-    public getAppliedMigrations = (t?: Transaction) => {
-        return (t ?? this.pg).sql<MigrationRow>`SELECT * FROM "${raw(this.migrationsTableName)}" ORDER BY "id" ASC`;
+    public getAppliedMigrations = (t: PgConnection = this.pg) => {
+        return t.sql<MigrationRow>`
+            SELECT * FROM "${raw(this.migrationsTableName)}"
+            ORDER BY id ASC
+        `;
     };
 
     private ensureMigrationTable = async () => {
         const [{ exists } = { exists: false }] = await this.pg.sql<{ exists: boolean }>`
             SELECT EXISTS (
-                SELECT FROM "information_schema"."tables" 
-                WHERE "table_schema" = 'public'
-                AND "table_name" = ${this.migrationsTableName}
+                SELECT FROM information_schema.tables
+                WHERE table_schema = 'public'
+                AND table_name = ${this.migrationsTableName}
             )
         `;
 
@@ -141,9 +118,9 @@ export class MigrationRunner {
         this.logger.info('Migration table does not exist, creating it');
         await this.pg.sql`
             CREATE TABLE IF NOT EXISTS "${raw(this.migrationsTableName)}" (
-                "id" int PRIMARY KEY,
-                "name" text NOT NULL,
-                "created_at" timestamptz NOT NULL DEFAULT clock_timestamp()
+                id int PRIMARY KEY,
+                name text NOT NULL,
+                created_at timestamptz NOT NULL DEFAULT clock_timestamp()
             )
         `;
     };

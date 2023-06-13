@@ -10,9 +10,11 @@
     "syncpack",
     "tanstack",
     "testcontainers",
+    "timestamptz",
     "Todos",
     "unflatten",
-    "untype"
+    "untype",
+    "xact"
   ],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

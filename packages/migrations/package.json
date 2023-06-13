@@ -21,6 +21,8 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@types/source-map-support": "^0.5.6"
+    "@jest/globals": "^29.5.0",
+    "@types/source-map-support": "^0.5.6",
+    "testcontainers": "^9.8.0"
   }
 }
