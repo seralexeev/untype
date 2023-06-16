@@ -1,8 +1,5 @@
-import { isFunction } from 'is-what';
-
 export const trimToNull = (value: string | null | undefined) => {
-    const trimmed = value?.trim();
-    return trimmed ? trimmed : null;
+    return value?.trim() || null;
 };
 
 export const pick = <T, K extends keyof T>(value: T, keys: readonly K[]): Pick<T, K> => {
@@ -129,3 +126,7 @@ export const uniqueBy = <T>(items: T[], keySelector?: (item: T) => unknown) => {
         }
     });
 };
+
+export function isFunction(payload: any): payload is (...args: any[]) => any {
+    return typeof payload === 'function';
+}

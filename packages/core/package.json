@@ -12,8 +12,5 @@
     "./node": {
       "require": "./dist/node.js"
     }
-  },
-  "dependencies": {
-    "is-what": "^3.14.1"
   }
 }

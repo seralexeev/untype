@@ -2195,8 +2195,6 @@ __metadata:
 "@untype/core@workspace:*, @untype/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@untype/core@workspace:packages/core"
-  dependencies:
-    is-what: ^3.14.1
   languageName: unknown
   linkType: soft
 
@@ -6079,13 +6077,6 @@ __metadata:
   dependencies:
     call-bind: ^1.0.2
   checksum: 95bd9a57cdcb58c63b1c401c60a474b0f45b94719c30f548c891860f051bc2231575c290a6b420c6bc6e7ed99459d424c652bd5bf9a1d5259505dc35b4bf83de
-  languageName: node
-  linkType: hard
-
-"is-what@npm:^3.14.1":
-  version: 3.14.1
-  resolution: "is-what@npm:3.14.1"
-  checksum: a9a6ce92d33799f1ae0916c7afb6f8128a23ce9d28bd69d9ec3ec88910e7a1f68432e6236c3c8a4d544cf0b864675e5d828437efde60ee0cf8102061d395c1df
   languageName: node
   linkType: hard
 
