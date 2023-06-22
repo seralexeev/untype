@@ -1,6 +1,6 @@
 # 🐘 untype/orm
 
-This library is a wrapper around `PostGraphile`, facilitating an ORM-based approach for database management. It allows for efficient and type-safe operations on a relational database, treating it as an arbitrarily nested graph of objects. The library extensively employs [@untype/pg](../pg) for database communication.
+This library is a wrapper around `PostGraphile`, facilitating an ORM-based approach for database management. It allows for efficient and type-safe operations on a relational database, treating it as an arbitrarily nested graph of objects. The library extensively uses [@untype/pg](../pg) for database communication.
 
 > PostGraphile empowers you with the full strength of `PostgreSQL` through an exquisitely designed, extendable, customizable, and highly efficient GraphQL server.
 
@@ -8,16 +8,18 @@ This library is a wrapper around `PostGraphile`, facilitating an ORM-based appro
 
 ## 💡 Motivation
 
-The conventional approach while working with `PostGraphile` involves the initiation of a separate GraphQL server. This server connects to the database and exposes a GraphQL API for data manipulation. This API can be utilized as a service within an infrastructure, or it can be made public, safeguarding data with an inbuilt authorization system and [Row Level Security](https://www.graphile.org/postgraphile/security/). Although this arrangement works perfectly fine, it has some limitations:
+The most common approach working with `PostGraphile` involves the initiation of a separate GraphQL server. This server connects to the database and exposes a GraphQL API for data manipulation. This API can be utilized as a service within an infrastructure, or it can be made public, safeguarding data with an inbuilt authorization system and [Row Level Security](https://www.graphile.org/postgraphile/security/). Although this arrangement works perfectly fine, it had some limitations for me:
 
 -   A separate GraphQL server requires maintenance
 -   Connecting to another server results in latency
--   Writing gql queries and generating codes for them is necessary
--   Implementing transactions can be challenging
+-   Writing gql queries and generating code for them is necessary if we want archive type-safety
+-   Implementing transactions can be challenging across multiple services
 -   Sometimes, correctly and efficiently implementing RLS is difficult
--   Occasionally, direct SQL queries to the database are necessary without using GraphQL
+-   Occasionally, direct SQL queries to the database are necessary without using GraphQL (full-text search, postgis, etc.)
 
-PostGraphile allows you to utilize the GraphQL schema directly within the NodeJS process, which addresses the first two problems. However, the remaining issues persist. Consequently, we decided to create a library that allows the use of PostGraphile as an ORM for NodeJS applications.
+PostGraphile allows you to utilize the GraphQL schema directly within the NodeJS process, which addresses the first two problems.
+
+However, the remaining points still exist. Usually the database structure changes less frequently than the application code so that we could generate typing for the schema once and use it as a type source for every query rather than writing gql queries and generate types for them separately.
 
 ## Installation
 
@@ -465,11 +467,11 @@ In this file, we override the `status` field in the `Todo` entity and specify th
 
 The ORM implementation is based on two main parts:
 
--   TypeScript types that repeat the behavior of PostGraphile and allow outputting query results from selectors.
--   A runtime GraphQL query document generator from the selector.
+-   TypeScript types that repeat the behavior of PostGraphile and infer result types from selectors.
+-   A runtime GraphQL query document generator that uses schema and selector side by side.
 
 At the code-writing stage, recursive types and the compiler, based on the entity description, allow writing correct code using type checking and autocomplete. Knowing the types of entities, the compiler outputs the results, finding a correspondence between the selector key and the entity description. The type does this recursively, key by key, processing nullable types, collections, and field overrides.
 
-Since there is no information about types and entities at runtime, the query builder traverses the selector tree and matches it with the GraphQL schema provided by PostGraphile. For each selector key, it picks the right type, filters, limits, and other arguments are taken out into query arguments and it builds a GraphQL query document. Then it sends the query to the server and receives the result. Since it is assumed that the entity descriptions are up-to-date, you can simply return the query result, which will correspond one-to-one with the selector type output by the compiler.
+Since there is no information about types and entities at runtime, the query builder traverses the selector tree and matches it with the GraphQL schema provided by PostGraphile. For each selector key, it picks the right type, filters, limits, and other arguments are taken out into query arguments and it builds a GraphQL query document. Then it passes the query to PostGraphile receives the result. Since it is assumed that the entity descriptions are up-to-date, it can simply return the query result, which will correspond one-to-one with the selector type output by the compiler.
 
-The code generator does something similar, but in the reverse order. Using the GraphQL schema, it generates TypeScript entity descriptions.
+The code generator does something similar, but in the reverse order. Using the GraphQL schema, it generates type definitions for every entity.
