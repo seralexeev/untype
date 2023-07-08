@@ -2,7 +2,7 @@ import { Container } from '@untype/core';
 import { StdDumper } from '@untype/dumper';
 import { Logger } from '@untype/logger';
 import { Pg } from '@untype/pg';
-import { createServer } from '@untype/rpc-express';
+import { ExpressServer } from '@untype/rpc-express';
 import { container } from 'tsyringe';
 import { Config } from './config';
 import { controllers } from './controllers';
@@ -21,12 +21,10 @@ export const createApp = async () => {
     container.register(Pg, { useValue: pg });
     container.register(Config, { useValue: config });
 
-    const { app } = createServer({
+    const { app } = new ExpressServer().createServer({
         path: '/api',
-        logger,
         container,
         controllers,
-        includeErrorsResponse: config.server.includeErrorsResponse,
     });
 
     await startWorker({ container, logger, pg });

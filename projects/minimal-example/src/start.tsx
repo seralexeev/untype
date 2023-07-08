@@ -1,8 +1,7 @@
 import 'source-map-support/register';
 
 import { ContentResponse, EndpointResponse, HttpContext, RpcApi } from '@untype/rpc';
-import { ExpressExecutor, createControllers } from '@untype/rpc-express';
-import express from 'express';
+import { ExpressExecutor, ExpressServer } from '@untype/rpc-express';
 import React, { ReactNode, isValidElement } from 'react';
 import { renderToPipeableStream } from 'react-dom/server';
 import { container } from 'tsyringe';
@@ -118,7 +117,4 @@ export type Api = RpcApi<typeof controllers>;
 //     };
 // }
 
-express()
-    .use(express.json())
-    .use('/', createControllers({ controllers: { HelloController }, container }))
-    .listen(3000);
+new ExpressServer().createServer({ controllers: { HelloController }, container }).app.listen(3000);

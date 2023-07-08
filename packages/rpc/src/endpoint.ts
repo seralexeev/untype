@@ -1,12 +1,12 @@
 import { Class, Merge, OmitNever } from '@untype/core';
 import { Jsonify } from 'type-fest';
 import { z } from 'zod';
-import { EndpointExecutor } from './executor';
+import { Executor } from './executor';
 
 export class Endpoint<TInput, TOutput> {
     public constructor(
         public type: 'RPC' | 'REST',
-        public Executor: EndpointExecutor<any, any, any, any, any> | Class<EndpointExecutor<any, any, any, any, any>>,
+        public Executor: Executor<any, any, any, any, any> | Class<Executor<any, any, any, any, any>>,
         public config: EndpointConfig<any, any, any, any, TInput, TOutput, any>,
     ) {}
 }
