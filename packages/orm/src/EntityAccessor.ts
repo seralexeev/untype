@@ -1,10 +1,7 @@
 import { camelCase } from 'change-case';
 import { pluralize } from 'graphile-build';
-import { PoolClient } from 'pg';
-
-import { InternalError, NotFoundError } from '@untype/core';
-import { Pg, PgClient, PgConnection, Transaction, isTransaction } from '@untype/pg';
-
+import { NotFoundError } from '@untype/core';
+import { SqlClient, Transaction, isTransaction } from '@untype/pg';
 import { Filter } from './filter';
 import { GqlQueryBuilder } from './gql';
 import { FieldSelector, SelectorShape } from './selector';
@@ -32,14 +29,11 @@ export class EntityAccessor<T> {
     // TODO: merge selectors into one object
     public createSelector = <S extends FieldSelector<T, S>>(selector: S) => selector;
 
-    public find = <S extends FieldSelector<T, S>>(t: PgConnection, query: Query<T> & { selector: S }) => {
+    public find = <S extends FieldSelector<T, S>>(t: SqlClient, query: Query<T> & { selector: S }) => {
         return this.query<Array<SelectorShape<T, S>>>(t, 'query', this.queries.pluralCamelCaseName, query ?? {});
     };
 
-    public findByPk = async <S extends FieldSelector<T, S>>(
-        t: PgConnection,
-        query: { pk: InferPrimaryKey<T>; selector: S },
-    ) => {
+    public findByPk = async <S extends FieldSelector<T, S>>(t: SqlClient, query: { pk: InferPrimaryKey<T>; selector: S }) => {
         const { pk, selector } = query;
 
         return this.query<SelectorShape<T, S> | null>(t, 'query', this.queries.camelCaseName, {
@@ -49,7 +43,7 @@ export class EntityAccessor<T> {
     };
 
     public findByPkOrError = async <S extends FieldSelector<T, S>>(
-        t: PgConnection,
+        t: SqlClient,
         query: { pk: InferPrimaryKey<T>; selector: S },
     ) => {
         const data = await this.findByPk(t, query);
@@ -63,7 +57,7 @@ export class EntityAccessor<T> {
     };
 
     public findFirst = async <S extends FieldSelector<T, S>>(
-        t: PgConnection,
+        t: SqlClient,
         query: { selector: S; filter?: Filter<T>; orderBy?: OrderBy<T> },
     ) => {
         const [row] = await this.find(t, { ...query, first: 1 });
@@ -72,7 +66,7 @@ export class EntityAccessor<T> {
     };
 
     public findFirstOrError = async <S extends FieldSelector<T, S>>(
-        t: PgConnection,
+        t: SqlClient,
         query: { selector: S; filter?: Filter<T>; orderBy?: OrderBy<T> },
     ) => {
         const data = await this.findFirst(t, query);
@@ -86,7 +80,7 @@ export class EntityAccessor<T> {
     };
 
     public findOrCreate = async <S extends FieldSelector<T, S>>(
-        t: PgConnection,
+        t: SqlClient,
         query: { selector: S; filter: Filter<T>; item: InsertShape<T> },
     ) => {
         const { filter, item, selector } = query;
@@ -94,10 +88,11 @@ export class EntityAccessor<T> {
         if (!row) {
             return this.create(t, { item, selector });
         }
+
         return row;
     };
 
-    public count = async <S extends FieldSelector<T, S>>(t: PgConnection, query?: { filter?: Filter<T> }) => {
+    public count = async <S extends FieldSelector<T, S>>(t: SqlClient, query?: { filter?: Filter<T> }) => {
         const data = await this.query<{ totalCount: number }>(t, 'query', `${this.queries.pluralCamelCaseName}Connection`, {
             ...query,
             selector: { totalCount: true },
@@ -106,7 +101,7 @@ export class EntityAccessor<T> {
         return data.totalCount;
     };
 
-    public findAndCount = async <S extends FieldSelector<T, S>>(t: PgConnection, query: Query<T> & { selector: S }) => {
+    public findAndCount = async <S extends FieldSelector<T, S>>(t: SqlClient, query: Query<T> & { selector: S }) => {
         const data = await this.query<{ totalCount: number; nodes: Array<SelectorShape<T, S>> }>(
             t,
             'query',
@@ -123,16 +118,16 @@ export class EntityAccessor<T> {
         return { total: data.totalCount, items: data.nodes };
     };
 
-    public exists = <S extends FieldSelector<T, S>>(t: PgConnection, query?: { filter?: Filter<T> }) => {
+    public exists = <S extends FieldSelector<T, S>>(t: SqlClient, query?: { filter?: Filter<T> }) => {
         return this.count(t, query).then((x) => x > 0);
     };
 
-    public existsByPk = <S extends FieldSelector<T, S>>(t: PgConnection, { pk }: { pk: InferPrimaryKey<T> }) => {
+    public existsByPk = <S extends FieldSelector<T, S>>(t: SqlClient, { pk }: { pk: InferPrimaryKey<T> }) => {
         return this.findByPk(t, { pk, selector: {} }).then(Boolean);
     };
 
     public create = async <S extends FieldSelector<T, S> = []>(
-        t: PgConnection,
+        t: SqlClient,
         query: { item: InsertShape<T>; selector?: S },
     ): Promise<SelectorShape<T, S>> => {
         const { selector, item } = query;
@@ -146,7 +141,7 @@ export class EntityAccessor<T> {
     };
 
     public update = async <S extends FieldSelector<T, S> = []>(
-        t: PgConnection,
+        t: SqlClient,
         query: { pk: InferPrimaryKey<T>; patch: UpdateShape<T>; selector?: S },
     ): Promise<SelectorShape<T, S>> => {
         const { selector, patch, pk } = query;
@@ -160,7 +155,7 @@ export class EntityAccessor<T> {
     };
 
     public delete = async <S extends FieldSelector<T, S> = []>(
-        t: PgConnection,
+        t: SqlClient,
         query: { pk: InferPrimaryKey<T>; selector?: S },
     ): Promise<SelectorShape<T, S>> => {
         const { selector, pk } = query;
@@ -174,7 +169,7 @@ export class EntityAccessor<T> {
     };
 
     public upsert = async <S extends FieldSelector<T, S> = []>(
-        t: PgConnection,
+        t: SqlClient,
         query: { where?: Partial<EntityShape<T>>; item: InsertShape<T>; selector?: S },
     ): Promise<SelectorShape<T, S>> => {
         const { selector, where, item } = query;
@@ -225,7 +220,7 @@ export class EntityAccessor<T> {
     };
 
     public async updateOrCreate<S extends FieldSelector<T, S> = []>(
-        t: PgConnection,
+        t: SqlClient,
         args: {
             pk: InferPrimaryKey<T>;
             selector?: S;
@@ -243,41 +238,27 @@ export class EntityAccessor<T> {
     }
 
     private query = async <T = any>(
-        t: PgConnection,
+        client: SqlClient,
         operation: 'query' | 'mutation',
         name: string,
         query: object,
     ): Promise<T> => {
-        const pg: PgClient | undefined = isTransaction(t) ? t.pg : t;
-        if (!pg) {
-            throw new InternalError('Pg is not defined');
+        const runQuery = this.getQueryRunner(client);
+
+        if (isTransaction(client) || operation === 'query') {
+            return client.connect<T>((client) => runQuery(client, operation, name, query));
         }
 
-        const runQuery = this.getQueryRunner(pg);
-
-        if (isTransaction(t)) {
-            return t.connect<T>((client) => runQuery(client, operation, name, query));
-        }
-
-        if (operation === 'query') {
-            if (t instanceof Pg) {
-                return t.readonly.connect<T>((client) => runQuery(client, operation, name, query));
-            } else {
-                return t.connect<T>((client) => runQuery(client, operation, name, query));
-            }
-        }
-
-        return t.transaction(({ connect }) => connect((client) => runQuery(client, operation, name, query)));
+        // mutations in postgraphile always run in a transaction
+        return client.transaction(({ connect }) => connect((client) => runQuery(client, operation, name, query)));
     };
 
-    private getQueryRunner = (
-        pg: PgClient,
-    ): ((client: PoolClient, operation: 'query' | 'mutation', name: string, query: object) => Promise<any>) => {
-        if (!pg.data.gqlQueryBuilderCollection) {
-            pg.data.gqlQueryBuilderCollection = {};
+    private getQueryRunner = ({ pg }: SqlClient) => {
+        if (!pg.meta.gqlQueryBuilderCollection) {
+            pg.meta.gqlQueryBuilderCollection = {};
         }
 
-        const gqlQueryBuilderCollection = pg.data.gqlQueryBuilderCollection as Record<string, GqlQueryBuilder>;
+        const gqlQueryBuilderCollection = pg.meta.gqlQueryBuilderCollection as Record<string, GqlQueryBuilder>;
 
         let queryBuilder = gqlQueryBuilderCollection[this.schemaName];
         if (!queryBuilder) {

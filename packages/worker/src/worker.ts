@@ -1,5 +1,5 @@
 import { ContainerType, InternalError, LoggerType, Merge, OmitNever } from '@untype/core';
-import { Pg, PgConnection } from '@untype/pg';
+import { Pg, SqlClient } from '@untype/pg';
 import {
     AddJobFunction,
     CronItem,
@@ -67,15 +67,15 @@ type TaskSpec = Omit<LibTaskSpec, 'jobKey'> & {
 
 export const createWorker = <T extends Record<string, Class<any>>>(handlers: T) => {
     async function schedule(
-        pg: PgConnection,
+        client: SqlClient,
         job: WorkerHandlerCollection<T>[keyof WorkerHandlerCollection<T>] & { key: string },
         { jobKey, ...spec }: TaskSpec = {},
     ) {
-        if (!pg.data.addJob) {
-            pg.data.addJob = makeAddJob({}, pg.connect);
+        if (!client.pg.meta.addJob) {
+            client.pg.meta.addJob = makeAddJob({}, client.connect);
         }
 
-        const addJob = pg.data.addJob as AddJobFunction;
+        const addJob = client.pg.meta.addJob as AddJobFunction;
 
         if (jobKey === true) {
             jobKey = job.key;

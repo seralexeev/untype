@@ -1,5 +1,5 @@
 import { LoggerType } from '@untype/core';
-import { Pg, PgConnection, Transaction, raw } from '@untype/pg';
+import { Pg, SqlClient, Transaction, raw } from '@untype/pg';
 import { Migration, MigrationRow } from './types';
 
 const PG_MIGRATE_LOCK_ID = 27031991;
@@ -94,7 +94,7 @@ export class MigrationRunner {
         }
     };
 
-    public getAppliedMigrations = (t: PgConnection = this.pg) => {
+    public getAppliedMigrations = (t: SqlClient = this.pg) => {
         return t.sql<MigrationRow>`
             SELECT * FROM "${raw(this.migrationsTableName)}"
             ORDER BY id ASC

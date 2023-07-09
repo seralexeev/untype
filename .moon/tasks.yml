@@ -54,7 +54,7 @@ tasks:
       - src/**/*
       - jest.config.*
     deps:
-      - '^:build'
+      - '~:build'
     options:
       outputStyle: buffer-only-failure
   syncpack:

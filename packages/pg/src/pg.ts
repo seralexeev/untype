@@ -1,22 +1,26 @@
 import { Pool, PoolClient, PoolConfig, QueryConfig, QueryResult, QueryResultRow } from 'pg';
-
 import { patchQuery } from './explain';
 import { sql } from './sql';
-import { IsolationLevel, PgClient, RawSql, Transaction } from './types';
+import { IsolationLevel, PoolWrapper, RawSql, Transaction } from './types';
 
 type PoolOrConfig = Pool | PoolConfig | string;
 
-export class Pg implements PgClient {
+export class Pg implements PoolWrapper {
     private nodes;
 
     public master;
     public replicas;
+    public meta: Record<string, unknown> = {};
 
-    public data = {};
+    public connectUnsafe;
     public transaction;
     public connect;
     public query;
     public sql;
+
+    public get pg() {
+        return this;
+    }
 
     public constructor({
         applicationName,
@@ -27,10 +31,11 @@ export class Pg implements PgClient {
         master: PoolOrConfig;
         replicas?: PoolOrConfig[];
     }) {
-        this.master = new PooledPg({ applicationName, pool: master });
-        this.replicas = replicas.map((x) => new PooledPg({ applicationName, pool: x }));
+        this.master = new PooledPg(this, { applicationName, pool: master });
+        this.replicas = replicas.map((x) => new PooledPg(this, { applicationName, pool: x }));
         this.nodes = [this.master, ...this.replicas];
 
+        this.connectUnsafe = this.master.connectUnsafe;
         this.transaction = this.master.transaction;
         this.connect = this.master.connect;
         this.query = this.master.query;
@@ -47,9 +52,7 @@ export class Pg implements PgClient {
     }
 
     public close = async () => {
-        for (const node of this.nodes) {
-            await node.close();
-        }
+        await Promise.all(this.nodes.map((x) => x.close()));
     };
 
     public static enableSlowExplainNotSuitableForProduction = (logger: {
@@ -59,23 +62,25 @@ export class Pg implements PgClient {
     };
 }
 
-class PooledPg implements PgClient {
-    public data = {};
+class PooledPg implements PoolWrapper {
     public pool;
     private isPoolExternal;
     private options;
 
-    public constructor({
-        applicationName,
-        pool,
-        onPoolError,
-        onClientError,
-    }: {
-        applicationName?: string;
-        pool: PoolOrConfig;
-        onPoolError?: (error: Error) => void;
-        onClientError?: (error: Error) => void;
-    }) {
+    public constructor(
+        public pg: Pg,
+        {
+            applicationName,
+            pool,
+            onPoolError,
+            onClientError,
+        }: {
+            applicationName?: string;
+            pool: PoolOrConfig;
+            onPoolError?: (error: Error) => void;
+            onClientError?: (error: Error) => void;
+        },
+    ) {
         this.options = { onPoolError, onClientError };
 
         if (pool instanceof Pool) {
@@ -158,9 +163,11 @@ class TransactionScope implements Transaction {
     private client?: PoolClient;
 
     public readonly isTransaction = true;
-    public data = {};
+    public get pg() {
+        return this.pool.pg;
+    }
 
-    public constructor(public pg: PooledPg, private options?: { isolationLevel?: IsolationLevel }) {}
+    public constructor(private pool: PooledPg, private options?: { isolationLevel?: IsolationLevel }) {}
 
     public rollback = async () => {
         if (!this.clientPromise) {
@@ -204,13 +211,17 @@ class TransactionScope implements Transaction {
     };
 
     private getClientInTransaction = async () => {
-        this.client = await this.pg.connectUnsafe();
-        await this.client.query('BEGIN');
-
-        if (this.options?.isolationLevel && this.options.isolationLevel !== 'READ COMMITTED') {
-            await this.client.query(`SET TRANSACTION ISOLATION LEVEL ${this.options.isolationLevel}`);
-        }
+        this.client = await this.pool.connectUnsafe();
+        await this.client.query(this.getTransactionBegin(this.options?.isolationLevel));
 
         return this.client;
+    };
+
+    private getTransactionBegin = (level?: IsolationLevel) => {
+        if (!level || level === 'READ COMMITTED') {
+            return 'BEGIN';
+        }
+
+        return `BEGIN ISOLATION LEVEL ${level}`;
     };
 }

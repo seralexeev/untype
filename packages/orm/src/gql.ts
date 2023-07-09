@@ -1,6 +1,7 @@
 import PgManyToManyPlugin from '@graphile-contrib/pg-many-to-many';
 import PgOrderByRelatedPlugin from '@graphile-contrib/pg-order-by-related';
 import PgSimplifyInflectorPlugin from '@graphile-contrib/pg-simplify-inflector';
+import PostgisPlugin from '@graphile/postgis';
 import { InternalError, UnreachableError } from '@untype/core';
 import { constantCase } from 'change-case';
 import {
@@ -30,7 +31,6 @@ import ConnectionFilterPlugin from 'postgraphile-plugin-connection-filter';
 import { PgMutationUpsertPlugin } from 'postgraphile-upsert-plugin';
 import { NonNullRelationsPlugin } from './plugins/NonNullRelationsPlugin';
 import { PgNumericToBigJsPlugin } from './plugins/PgNumericToBigJsPlugin';
-import PostgisPlugin from '@graphile/postgis';
 
 export type GqlInvoke = <T = unknown>(type: 'query' | 'mutation', name: string, query: object) => Promise<T>;
 export type GqlClient = { gql: GqlInvoke };
