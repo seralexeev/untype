@@ -1,2 +1,2 @@
 export * from './types';
-export * from './MigrationRunner';
+export * from './runner';

@@ -59,7 +59,23 @@ export class MigrationRunner {
                 }
 
                 this.logger.info('Pending migrations:', pendingMigrations);
-                await this.applyMigrations(pendingMigrations);
+
+                for (const migration of pendingMigrations) {
+                    const formattedMigrationId = migration.id.toString().padStart(3, '0');
+                    const migrationName = `[${formattedMigrationId}]: ${migration.name} (${formattedMigrationId}_${migration.name})`;
+
+                    try {
+                        this.logger.info(`Applying migration ${migrationName}`);
+                        await migration.apply(t, { pg: this.pg });
+                        await t.sql`
+                            INSERT INTO "${raw(this.migrationsTableName)}" (id, name)
+                            VALUES (${migration.id}, ${migration.name})
+                        `;
+                    } catch (error) {
+                        this.logger.error(`Unable to apply migration ${migrationName}`, error);
+                        throw error;
+                    }
+                }
 
                 this.logger.info('✅ Successfully ran migrations');
             } catch (error) {
@@ -68,30 +84,6 @@ export class MigrationRunner {
                 throw error;
             }
         });
-    };
-
-    /**
-     * Apply migrations each in a separate transaction to apply as much as possible
-     */
-    private applyMigrations = async (migrations: Migration[]) => {
-        for (const migration of migrations) {
-            await this.pg.transaction(async (t) => {
-                const formattedMigrationId = migration.id.toString().padStart(3, '0');
-                const migrationName = `[${formattedMigrationId}]: ${migration.name} (${formattedMigrationId}_${migration.name})`;
-
-                try {
-                    this.logger.info(`Applying migration ${migrationName}`);
-                    await migration.apply(t, { pg: this.pg });
-                    await t.sql`
-                        INSERT INTO "${raw(this.migrationsTableName)}" (id, name)
-                        VALUES (${migration.id}, ${migration.name})
-                    `;
-                } catch (error) {
-                    this.logger.error(`Unable to apply migration ${migrationName}`, error);
-                    throw error;
-                }
-            });
-        }
     };
 
     public getAppliedMigrations = (t: SqlClient = this.pg) => {

@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, jest } from '@jes
 import { ConsoleLogger } from '@untype/core';
 import { Pg } from '@untype/pg';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
-import { MigrationRunner } from './MigrationRunner';
+import { MigrationRunner } from './runner';
 import { ApplyCallback } from './types';
 
 describe('Migration Runner', () => {
@@ -179,7 +179,7 @@ describe('Migration Runner', () => {
         await ensureNoTable('users');
     });
 
-    it('does not rollback applied transactions if sql throws within a run', async () => {
+    it('rollbacks applied transactions if sql throws within a run', async () => {
         const mr = new MigrationRunner(logger, pg);
 
         await mr.run([{ id: 1, name: 'createUsers', apply: (t) => t.sql`CREATE TABLE "users" ("id" int PRIMARY KEY)` }]);
@@ -193,14 +193,9 @@ describe('Migration Runner', () => {
         ).rejects.toThrow();
 
         const migrations = await mr.getAppliedMigrations();
-        expect(migrations).toStrictEqual([
-            { created_at: expect.any(Date), id: 1, name: 'createUsers' },
-            { created_at: expect.any(Date), id: 2, name: 'createOrders' },
-        ]);
+        expect(migrations).toStrictEqual([{ created_at: expect.any(Date), id: 1, name: 'createUsers' }]);
 
         await ensureTable('users');
-        await ensureTable('orders');
-        await ensureNoTable('roles');
     });
 
     it('rollbacks query if sql throws within a run', async () => {
