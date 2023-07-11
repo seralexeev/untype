@@ -126,9 +126,7 @@ import { task, cron } from '@untype/worker';
 export class TodoWorker {
     constructor(private pg: Pg, private mail: MailService) {}
 
-    public ['
-
-todo/SEND_EMAIL'] = task({
+    public ['todo/SEND_EMAIL'] = task({
         input: z.object({ id: z.string() }),
         resolve: async ({ input }) => {
             const [todo = never()] = await this.pg.sql<{ id: string; title: string }>`
